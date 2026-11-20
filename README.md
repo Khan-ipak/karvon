@@ -94,7 +94,7 @@ lifecycle are in [`docs/architecture.md`](docs/architecture.md).
 - [x] Gate, yard, operations, warehouse, weighbridge, billing
 - [x] EN / RU / UZ interface
 - [ ] Users, roles and audit log
-- [ ] Database migrations (Alembic)
+- [x] Database migrations (Alembic)
 - [ ] Weighbridge hardware driver (RS-232 / TCP)
 - [ ] ANPR camera at the gate
 - [ ] CMR / TIR / invoice PDF generation

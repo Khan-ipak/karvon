@@ -74,6 +74,7 @@ karvon/
   web.py      HTML UI (Jinja2 templates in templates/), uses the same services
   services.py Business rules and state transitions. No HTTP here.
   models.py   SQLAlchemy models
+  migrations/ Alembic migrations, applied on startup by migrate.py
   schemas.py  Pydantic request/response schemas
   i18n/       Translation files
   seed.py     Demo terminal
@@ -83,7 +84,6 @@ Both the API and the UI call `services`. Rules live in one place.
 
 ## Roadmap after v0.1
 
-- Alembic migrations
 - Authentication and roles (operator, customs broker, warehouse, accountant, yard)
 - Weighbridge hardware driver (serial / TCP)
 - ANPR camera integration at the gate

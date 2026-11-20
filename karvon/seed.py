@@ -125,11 +125,12 @@ def seed(session: Session, *, demo: bool = True) -> None:
 
 if __name__ == "__main__":
     from karvon.config import Settings
-    from karvon.db import Base, make_engine, make_sessionmaker
+    from karvon.db import make_engine, make_sessionmaker
+    from karvon.migrate import upgrade
 
     settings = Settings()
     engine = make_engine(settings.database_url)
-    Base.metadata.create_all(engine)
+    upgrade(engine)
     with make_sessionmaker(engine)() as s, s.begin():
         seed(s)
     print(f"Seeded {settings.database_url}")

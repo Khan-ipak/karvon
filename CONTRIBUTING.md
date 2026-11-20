@@ -21,6 +21,29 @@ pytest
 ruff check .
 ```
 
+## Database changes
+
+The schema is managed with [Alembic](https://alembic.sqlalchemy.org/). The app
+applies migrations on startup, so users only need to restart it.
+
+When you change `karvon/models.py`:
+
+```bash
+alembic revision --autogenerate -m "add sender to visits"
+```
+
+Read the generated file in `karvon/migrations/versions/` and fix what
+autogenerate can't know (data moves, defaults for existing rows). Then run
+`pytest`: `test_migrations_match_models` fails if models and migrations differ.
+
+Migrations must work on both SQLite and PostgreSQL. To run the PostgreSQL tests
+locally, point `KARVON_TEST_POSTGRES_URL` at a **throwaway** database (its
+`public` schema is dropped):
+
+```bash
+KARVON_TEST_POSTGRES_URL=postgresql+psycopg://user:pass@localhost/karvon_test pytest tests/test_migrations.py
+```
+
 ## Code layout
 
 - `karvon/services.py` has the business rules. Put new rules here, not in the API or UI.

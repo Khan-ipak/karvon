@@ -10,7 +10,8 @@ from fastapi.responses import JSONResponse
 from karvon import __version__
 from karvon.api import router as api_router
 from karvon.config import Settings
-from karvon.db import Base, make_engine, make_sessionmaker
+from karvon.db import make_engine, make_sessionmaker
+from karvon.migrate import upgrade
 from karvon.seed import seed
 from karvon.services import DomainError, NotFound
 from karvon.web import router as web_router
@@ -23,8 +24,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        # v0.1 creates tables directly; Alembic migrations are on the roadmap.
-        Base.metadata.create_all(engine)
+        upgrade(engine)
         with session_factory() as session, session.begin():
             seed(session, demo=settings.seed_demo)
         yield
