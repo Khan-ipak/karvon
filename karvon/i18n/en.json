@@ -18,6 +18,7 @@
   "visit.status": "Status",
   "visit.slot": "Slot",
   "visit.arrived": "Arrived",
+  "visit.on_site": "On site",
   "visit.days": "day(s)",
   "visit.cargo": "Cargo",
   "visit.tir": "TIR carnet",
