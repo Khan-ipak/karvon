@@ -81,5 +81,9 @@
   "tariff.weighbridge": "Весовая",
   "tariff.direct_transfer": "Прямая перегрузка",
   "tariff.warehouse_unload": "Выгрузка на склад",
-  "tariff.warehouse_load": "Погрузка со склада"
+  "tariff.warehouse_load": "Погрузка со склада",
+  "dash.search": "Поиск по госномеру",
+  "dash.search_button": "Найти",
+  "dash.no_match": "На терминале нет машин по запросу",
+  "dash.show_all": "Показать все"
 }

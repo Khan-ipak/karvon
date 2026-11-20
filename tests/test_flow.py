@@ -157,3 +157,19 @@ def test_slot_cannot_be_double_booked(client):
     slot = post(client, f"/visits/{a['id']}/park")["slot"]["id"]
     r = client.post(f"{API}/visits/{b['id']}/park", json={"slot_id": slot})
     assert r.status_code == 409 and r.json()["code"] == "slot_taken"
+
+
+def test_search_by_plate(client):
+    gate_in(client, "KBL-4521", "P1")
+    gate_in(client, "LHR-8830", "P2")
+    gate_in(client, "01A_777", "P3")
+
+    def plates(**params):
+        r = client.get(f"{API}/visits", params=params)
+        return sorted(v["vehicle"]["plate_number"] for v in r.json())
+
+    assert plates(plate="kbl") == ["KBL-4521"]
+    assert plates(plate=" 88 ") == ["LHR-8830"]
+    assert plates(plate="_") == ["01A_777"]  # underscore is literal, not a wildcard
+    assert plates(plate="zzz") == []
+    assert len(plates()) == 3

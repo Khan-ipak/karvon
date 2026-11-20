@@ -362,10 +362,19 @@ def pay_visit(session: Session, visit_id: int) -> Visit:
 # --- queries -----------------------------------------------------------------
 
 
-def list_visits(session: Session, *, on_site_only: bool = False) -> list[Visit]:
+def list_visits(
+    session: Session, *, on_site_only: bool = False, plate: str | None = None
+) -> list[Visit]:
+    """Newest first. `plate` matches any part of the plate number, ignoring case."""
     stmt = select(Visit).order_by(Visit.id.desc())
     if on_site_only:
         stmt = stmt.where(Visit.status != VisitStatus.exited)
+    plate = (plate or "").strip().upper()
+    if plate:
+        # plates are stored upper-case; autoescape keeps % and _ literal
+        stmt = stmt.join(Visit.vehicle).where(
+            Vehicle.plate_number.contains(plate, autoescape=True)
+        )
     return list(session.scalars(stmt))
 
 

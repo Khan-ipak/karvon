@@ -79,3 +79,10 @@ def test_custom_tariff_falls_back_to_description(demo_client):
     page = demo_client.get("/visits/2?lang=ru").text
     assert "Reefer power supply" in page
     assert "tariff.reefer_power" not in page
+
+
+def test_dashboard_search(demo_client):
+    page = demo_client.get("/?q=kbl&lang=en").text
+    assert "KBL-4521" in page and "LHR-8830" not in page
+    page = demo_client.get("/?q=nothing&lang=en").text
+    assert "No vehicles on site match" in page

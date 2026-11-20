@@ -10,6 +10,11 @@
 </section>
 
 <h3>{{ t("dash.on_site") }}</h3>
+<form method="get" action="/" role="search">
+  <input type="search" name="q" value="{{ q }}" placeholder="{{ t('dash.search') }}"
+         aria-label="{{ t('dash.search') }}" autocomplete="off">
+  <button type="submit">{{ t("dash.search_button") }}</button>
+</form>
 {% if visits %}
 <div class="overflow-auto">
 <table>
@@ -35,6 +40,8 @@
   </tbody>
 </table>
 </div>
+{% elif q %}
+<p>{{ t("dash.no_match") }} «{{ q }}». <a href="/">{{ t("dash.show_all") }}</a></p>
 {% else %}
 <p>{{ t("common.none") }}. <a href="/gate">{{ t("nav.gate_in") }}</a></p>
 {% endif %}

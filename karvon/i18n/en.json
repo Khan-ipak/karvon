@@ -81,5 +81,9 @@
   "tariff.weighbridge": "Weighbridge",
   "tariff.direct_transfer": "Direct transfer",
   "tariff.warehouse_unload": "Warehouse unloading",
-  "tariff.warehouse_load": "Warehouse loading"
+  "tariff.warehouse_load": "Warehouse loading",
+  "dash.search": "Search by plate number",
+  "dash.search_button": "Search",
+  "dash.no_match": "No vehicles on site match",
+  "dash.show_all": "Show all"
 }

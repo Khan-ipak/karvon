@@ -72,12 +72,13 @@ def _opt(value: str | None) -> str | None:
 
 
 @router.get("/", response_class=HTMLResponse)
-def dashboard(request: Request, db: DB):
+def dashboard(request: Request, db: DB, q: str = ""):
     return render(
         request,
         "dashboard.html",
         counts=services.dashboard_counts(db),
-        visits=services.list_visits(db, on_site_only=True),
+        visits=services.list_visits(db, on_site_only=True, plate=q),
+        q=q.strip(),
     )
 
 

@@ -81,5 +81,9 @@
   "tariff.weighbridge": "Tarozi",
   "tariff.direct_transfer": "Toʻgʻridan-toʻgʻri qayta yuklash",
   "tariff.warehouse_unload": "Omborga tushirish",
-  "tariff.warehouse_load": "Ombordan yuklash"
+  "tariff.warehouse_load": "Ombordan yuklash",
+  "dash.search": "Davlat raqami boʻyicha qidirish",
+  "dash.search_button": "Qidirish",
+  "dash.no_match": "Terminalda mos transport yoʻq:",
+  "dash.show_all": "Hammasini koʻrsatish"
 }

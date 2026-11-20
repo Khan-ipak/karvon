@@ -39,8 +39,8 @@ router = APIRouter(
 
 
 @router.get("/visits", response_model=list[VisitOut], tags=["gate"])
-def list_visits(db: DB, on_site: bool = False) -> list[Visit]:
-    return services.list_visits(db, on_site_only=on_site)
+def list_visits(db: DB, on_site: bool = False, plate: str | None = None) -> list[Visit]:
+    return services.list_visits(db, on_site_only=on_site, plate=plate)
 
 
 @router.post("/visits", response_model=VisitDetailOut, status_code=201, tags=["gate"])
