@@ -45,6 +45,9 @@
         <button type="submit">{{ t("action.gate_out") }}</button>
       </form>
       {% endif %}
+      {% if s in ["cleared", "exited"] %}
+      <a href="/visits/{{ visit.id }}/pass" target="_blank" role="button" class="outline">{{ t("pass.title") }}</a>
+      {% endif %}
     </div>
   </article>
 </div>

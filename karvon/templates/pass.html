@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ t("pass.title") }} {{ visit.vehicle.plate_number }} · Karvon</title>
+  <style>
+    @page { size: A5; margin: 12mm; }
+    body { font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+           color: #111; background: #fff; max-width: 148mm; margin: 2rem auto; padding: 0 1rem; }
+    header { display: flex; justify-content: space-between; align-items: baseline;
+             border-bottom: 2px solid #111; padding-bottom: .5rem; }
+    h1 { font-size: 1.3rem; margin: 0; }
+    .plate { font-size: 2rem; font-weight: 700; letter-spacing: .05em; margin: 1rem 0 .25rem; }
+    dl { display: grid; grid-template-columns: max-content 1fr; gap: .2rem 1rem; margin: 1rem 0; }
+    dt { color: #555; }
+    dd { margin: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { text-align: left; padding: .3rem .25rem; border-bottom: 1px solid #ddd; }
+    td.num, th.num { text-align: right; }
+    tfoot th { border-top: 2px solid #111; border-bottom: 0; }
+    .signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem; }
+    .signatures div { border-top: 1px solid #111; padding-top: .25rem; color: #555; font-size: .85rem; }
+    .toolbar { margin-bottom: 1rem; display: flex; gap: .5rem; }
+    .toolbar button, .toolbar a { font: inherit; padding: .4rem .9rem; border: 1px solid #111;
+                                  background: #fff; color: #111; border-radius: .3rem;
+                                  cursor: pointer; text-decoration: none; }
+    @media print { .toolbar { display: none; } body { margin: 0; } }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button type="button" onclick="window.print()">{{ t("pass.print") }}</button>
+    <a href="/visits/{{ visit.id }}">{{ t("pass.back") }}</a>
+  </div>
+
+  <header>
+    <h1>{{ t("pass.title") }} #{{ visit.id }}</h1>
+    <span>{{ terminal_name }}</span>
+  </header>
+
+  <div class="plate">{{ visit.vehicle.plate_number }}</div>
+
+  <dl>
+    <dt>{{ t("gate.trailer") }}</dt><dd>{{ visit.vehicle.trailer_number or "—" }}</dd>
+    <dt>{{ t("gate.country") }}</dt><dd>{{ visit.vehicle.country or "—" }}</dd>
+    <dt>{{ t("visit.driver") }}</dt><dd>{{ visit.driver.full_name }} ({{ visit.driver.passport_number }})</dd>
+    <dt>{{ t("visit.tir") }}</dt><dd>{{ visit.tir_carnet_number or "—" }}</dd>
+    <dt>{{ t("visit.arrived") }}</dt><dd>{{ visit.arrived_at.strftime("%Y-%m-%d %H:%M") }}</dd>
+    {% if visit.exited_at %}
+    <dt>{{ t("status.exited") }}</dt><dd>{{ visit.exited_at.strftime("%Y-%m-%d %H:%M") }}</dd>
+    {% endif %}
+    <dt>{{ t("pass.issued") }}</dt><dd>{{ issued_at.strftime("%Y-%m-%d %H:%M") }} UTC</dd>
+  </dl>
+
+  <table>
+    <thead>
+      <tr><th>{{ t("charges.desc") }}</th><th class="num">{{ t("charges.qty") }}</th>
+          <th class="num">{{ t("charges.amount") }}</th><th>{{ t("charges.paid") }}</th></tr>
+    </thead>
+    <tbody>
+    {% for c in visit.charges %}
+      {% set name = t("tariff." ~ c.tariff_code) %}
+      <tr>
+        <td>{{ c.description if name.startswith("tariff.") else name }}</td>
+        <td class="num">{{ c.quantity.normalize() }}</td>
+        <td class="num">{{ c.amount }}</td>
+        <td>{{ "✔" if c.paid else "—" }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="4">{{ t("common.none") }}</td></tr>
+    {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr><th colspan="2">{{ t("pass.total_paid") }}</th>
+          <th class="num">{{ total_paid }} {{ currency }}</th><th></th></tr>
+    </tfoot>
+  </table>
+
+  <div class="signatures">
+    <div>{{ t("pass.operator_signature") }}</div>
+    <div>{{ t("pass.guard_signature") }}</div>
+  </div>
+</body>
+</html>

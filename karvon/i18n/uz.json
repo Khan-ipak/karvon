@@ -85,5 +85,13 @@
   "dash.search": "Davlat raqami boʻyicha qidirish",
   "dash.search_button": "Qidirish",
   "dash.no_match": "Terminalda mos transport yoʻq:",
-  "dash.show_all": "Hammasini koʻrsatish"
+  "dash.show_all": "Hammasini koʻrsatish",
+  "pass.title": "Chiqish ruxsatnomasi",
+  "pass.print": "Chop etish",
+  "pass.back": "Tashrifga qaytish",
+  "pass.issued": "Berilgan",
+  "pass.total_paid": "Jami toʻlangan",
+  "pass.operator_signature": "Operator imzosi",
+  "pass.guard_signature": "Nazorat punkti qoʻriqchisi imzosi",
+  "pass.not_cleared": "Ruxsatnoma barcha toʻlovlardan soʻng beriladi."
 }

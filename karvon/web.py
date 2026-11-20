@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 from karvon import services
 from karvon.db import get_session
 from karvon.i18n import languages, translator
-from karvon.models import OperationType, StockLot, Visit, VisitStatus, YardZone
+from karvon.models import OperationType, StockLot, Visit, VisitStatus, YardZone, utcnow
 
 DB = Annotated[Session, Depends(get_session)]
 
@@ -132,6 +132,22 @@ def visit_page(request: Request, visit_id: int, db: DB):
         lots=list(db.scalars(select(StockLot).where(StockLot.quantity_kg > 0))),
         operation_types=list(OperationType),
         parking_days=services.parking_days(visit),
+    )
+
+
+@router.get("/visits/{visit_id}/pass", response_class=HTMLResponse)
+def exit_pass(request: Request, visit_id: int, db: DB):
+    """Printable slip the gate guard keeps when the truck leaves."""
+    visit = services.get(db, Visit, visit_id)
+    if visit.status not in (VisitStatus.cleared, VisitStatus.exited):
+        t = translator(_lang(request))
+        return back_to(f"/visits/{visit_id}", t("pass.not_cleared"))
+    return render(
+        request,
+        "pass.html",
+        visit=visit,
+        total_paid=sum((c.amount for c in visit.charges if c.paid), Decimal("0.00")),
+        issued_at=utcnow(),
     )
 
 

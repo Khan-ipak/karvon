@@ -86,3 +86,26 @@ def test_dashboard_search(demo_client):
     assert "KBL-4521" in page and "LHR-8830" not in page
     page = demo_client.get("/?q=nothing&lang=en").text
     assert "No vehicles on site match" in page
+
+
+def test_exit_pass(client):
+    r = client.post(
+        "/api/v1/visits",
+        json={"plate_number": "QTA-7714", "driver_name": "Bilal", "driver_passport": "PK1"},
+    )
+    vid = r.json()["id"]
+
+    # not cleared yet: back to the visit with a message
+    r = client.get(f"/visits/{vid}/pass?lang=en", follow_redirects=False)
+    assert r.status_code == 303 and r.headers["location"].startswith(f"/visits/{vid}?error=")
+    assert "/pass" not in client.get(f"/visits/{vid}").text
+
+    client.post(f"/api/v1/visits/{vid}/request-exit")
+    client.post(f"/api/v1/visits/{vid}/pay")
+    page = client.get(f"/visits/{vid}/pass?lang=ru").text
+    assert "Пропуск на выезд" in page and "QTA-7714" in page
+    assert "15.00 USD" in page  # one day of parking, paid
+    assert f"/visits/{vid}/pass" in client.get(f"/visits/{vid}").text
+
+    client.post(f"/api/v1/visits/{vid}/gate-out")
+    assert client.get(f"/visits/{vid}/pass").status_code == 200

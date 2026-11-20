@@ -85,5 +85,13 @@
   "dash.search": "Search by plate number",
   "dash.search_button": "Search",
   "dash.no_match": "No vehicles on site match",
-  "dash.show_all": "Show all"
+  "dash.show_all": "Show all",
+  "pass.title": "Exit pass",
+  "pass.print": "Print",
+  "pass.back": "Back to visit",
+  "pass.issued": "Issued",
+  "pass.total_paid": "Total paid",
+  "pass.operator_signature": "Operator signature",
+  "pass.guard_signature": "Gate guard signature",
+  "pass.not_cleared": "The exit pass is available after all charges are paid."
 }

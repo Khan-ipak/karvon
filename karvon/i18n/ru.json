@@ -85,5 +85,13 @@
   "dash.search": "Поиск по госномеру",
   "dash.search_button": "Найти",
   "dash.no_match": "На терминале нет машин по запросу",
-  "dash.show_all": "Показать все"
+  "dash.show_all": "Показать все",
+  "pass.title": "Пропуск на выезд",
+  "pass.print": "Печать",
+  "pass.back": "К визиту",
+  "pass.issued": "Выдан",
+  "pass.total_paid": "Итого оплачено",
+  "pass.operator_signature": "Подпись оператора",
+  "pass.guard_signature": "Подпись охраны КПП",
+  "pass.not_cleared": "Пропуск доступен после оплаты всех начислений."
 }
