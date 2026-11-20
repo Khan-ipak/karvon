@@ -76,5 +76,10 @@
   "stock.desc": "Tavsif",
   "stock.qty": "Miqdor, kg",
   "stock.since": "Sana",
-  "common.none": "Hozircha boʻsh"
+  "common.none": "Hozircha boʻsh",
+  "tariff.parking_day": "TIR turargohi",
+  "tariff.weighbridge": "Tarozi",
+  "tariff.direct_transfer": "Toʻgʻridan-toʻgʻri qayta yuklash",
+  "tariff.warehouse_unload": "Omborga tushirish",
+  "tariff.warehouse_load": "Ombordan yuklash"
 }

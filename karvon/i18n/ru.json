@@ -76,5 +76,10 @@
   "stock.desc": "Описание",
   "stock.qty": "Количество, кг",
   "stock.since": "С даты",
-  "common.none": "Пока пусто"
+  "common.none": "Пока пусто",
+  "tariff.parking_day": "Стоянка TIR",
+  "tariff.weighbridge": "Весовая",
+  "tariff.direct_transfer": "Прямая перегрузка",
+  "tariff.warehouse_unload": "Выгрузка на склад",
+  "tariff.warehouse_load": "Погрузка со склада"
 }

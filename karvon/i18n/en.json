@@ -76,5 +76,10 @@
   "stock.desc": "Description",
   "stock.qty": "Quantity, kg",
   "stock.since": "Since",
-  "common.none": "Nothing here yet"
+  "common.none": "Nothing here yet",
+  "tariff.parking_day": "TIR parking",
+  "tariff.weighbridge": "Weighbridge",
+  "tariff.direct_transfer": "Direct transfer",
+  "tariff.warehouse_unload": "Warehouse unloading",
+  "tariff.warehouse_load": "Warehouse loading"
 }

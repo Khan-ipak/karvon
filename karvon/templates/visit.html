@@ -150,7 +150,9 @@
     <th>{{ t("charges.amount") }}</th><th>{{ t("charges.paid") }}</th></tr></thead>
   <tbody>
   {% for c in visit.charges %}
-  <tr><td>{{ c.description }}</td><td>{{ c.quantity.normalize() }}</td><td>{{ c.unit_price }}</td>
+  {% set name = t("tariff." ~ c.tariff_code) %}
+  {# custom tariffs without a translation fall back to the stored description #}
+  <tr><td>{{ c.description if name.startswith("tariff.") else name }}</td><td>{{ c.quantity.normalize() }}</td><td>{{ c.unit_price }}</td>
       <td>{{ c.amount }} {{ currency }}</td><td>{{ "✔" if c.paid else "—" }}</td></tr>
   {% endfor %}
   </tbody>
