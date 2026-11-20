@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
+from fastapi.responses import Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -36,6 +38,21 @@ router = APIRouter(
 
 
 # --- visits / gate -----------------------------------------------------------
+
+
+@router.get("/visits.csv", tags=["gate"])
+def export_visits(
+    db: DB,
+    from_: Annotated[datetime | None, Query(alias="from")] = None,
+    to: Annotated[datetime | None, Query(alias="to")] = None,
+) -> Response:
+    """Download all visits as CSV, optionally filtered by arrival date."""
+    text = services.export_visits_csv(db, arrived_from=from_, arrived_to=to)
+    return Response(
+        content=text,
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="visits.csv"'},
+    )
 
 
 @router.get("/visits", response_model=list[VisitOut], tags=["gate"])

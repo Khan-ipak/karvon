@@ -7,6 +7,7 @@
   "dash.title": "Обзор терминала",
   "dash.on_site": "Машины на терминале",
   "dash.free_slots": "Свободные места",
+  "dash.download_csv": "Скачать CSV",
   "status.registered": "Зарегистрирована",
   "status.parked": "На стоянке",
   "status.in_operation": "В операции",

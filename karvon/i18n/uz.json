@@ -7,6 +7,7 @@
   "dash.title": "Terminal holati",
   "dash.on_site": "Terminaldagi transport",
   "dash.free_slots": "Boʻsh joylar",
+  "dash.download_csv": "CSV yuklab olish",
   "status.registered": "Roʻyxatga olingan",
   "status.parked": "Turargohda",
   "status.in_operation": "Operatsiyada",
