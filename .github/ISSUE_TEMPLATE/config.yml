@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions and ideas
+    url: https://github.com/Khan-ipak/karvon/discussions
+    about: Ask how to install or use Karvon, or discuss an idea before opening an issue.
+  - name: Security vulnerability
+    url: https://github.com/Khan-ipak/karvon/security/advisories/new
+    about: Please report security problems privately, not in a public issue.

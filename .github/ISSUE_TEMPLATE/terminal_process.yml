@@ -1,0 +1,40 @@
+name: Describe your terminal
+description: Tell us how trucks move through your site. This shapes the roadmap.
+labels: [question]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for sharing! Don't include personal data or anything confidential about your company.
+  - type: input
+    id: type
+    attributes:
+      label: Type of site
+      placeholder: Border truck terminal, dry port, TIR park, cross-dock warehouse...
+    validations:
+      required: true
+  - type: input
+    id: region
+    attributes:
+      label: Country or region
+  - type: input
+    id: volume
+    attributes:
+      label: Rough volume
+      placeholder: e.g. 150 trucks per day, 300 parking slots
+  - type: textarea
+    id: flow
+    attributes:
+      label: How does a truck move through the site?
+      description: Gate, parking, transloading or warehouse, customs, weighing, payment, exit. What happens in which order, and who does it?
+    validations:
+      required: true
+  - type: textarea
+    id: pain
+    attributes:
+      label: What is hardest today?
+  - type: textarea
+    id: tools
+    attributes:
+      label: What do you use now?
+      description: Paper, Excel, 1C, another system, hardware (scales, cameras)...
