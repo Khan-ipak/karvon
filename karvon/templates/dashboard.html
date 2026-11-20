@@ -22,7 +22,7 @@
     <tr>
       <th>#</th><th>{{ t("visit.plate") }}</th><th>{{ t("visit.driver") }}</th>
       <th>{{ t("visit.status") }}</th><th>{{ t("visit.slot") }}</th>
-      <th>{{ t("visit.arrived") }}</th><th>{{ t("visit.due") }}</th>
+      <th>{{ t("visit.arrived") }}</th><th>{{ t("visit.on_site") }}</th><th>{{ t("visit.due") }}</th>
     </tr>
   </thead>
   <tbody>
@@ -34,6 +34,7 @@
       <td><span class="badge {{ v.status.value }}">{{ t("status." ~ v.status.value) }}</span></td>
       <td>{{ v.slot.label if v.slot else "—" }}</td>
       <td>{{ v.arrived_at.strftime("%Y-%m-%d %H:%M") }}</td>
+      <td>{{ time_on_site(v) }}</td>
       <td>{{ v.total_due }} {{ currency }}</td>
     </tr>
   {% endfor %}

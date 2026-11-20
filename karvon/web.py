@@ -21,6 +21,7 @@ from karvon.models import OperationType, StockLot, Visit, VisitStatus, YardZone,
 DB = Annotated[Session, Depends(get_session)]
 
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
+templates.env.globals["time_on_site"] = lambda v: services.format_duration(services.time_on_site(v))
 router = APIRouter(include_in_schema=False)
 
 
