@@ -12,6 +12,13 @@ from sqlalchemy import inspect, text
 from karvon.db import Base, make_engine
 from karvon.migrate import PRE_ALEMBIC_REVISION, alembic_config, upgrade
 
+# Tables added after v0.1.0; a v0.1.0 database does not have them.
+NEWER_TABLES = ("audit_events", "user_sessions", "users")
+
+
+def _v010_tables():
+    return [t for t in Base.metadata.sorted_tables if t.name not in NEWER_TABLES]
+
 
 def _engine(tmp_path, name="m.db"):
     return make_engine(f"sqlite:///{tmp_path / name}")
@@ -57,7 +64,7 @@ def test_downgrade_to_base_and_back(tmp_path):
 def test_database_from_v010_is_stamped_and_keeps_data(tmp_path, caplog):
     """v0.1.0 used metadata.create_all and had no alembic_version table."""
     engine = _engine(tmp_path)
-    Base.metadata.create_all(engine)
+    Base.metadata.create_all(engine, tables=_v010_tables())
     with engine.begin() as c:
         c.execute(text("insert into vehicles (plate_number) values ('KBL-4521')"))
 
@@ -90,6 +97,8 @@ def test_postgres_v010_constraint_names_are_normalized(caplog):
     with engine.begin() as c:
         for table, old, new in renames.RENAMES:
             c.execute(text(f'alter table "{table}" rename constraint "{new}" to "{old}"'))
+        for table in NEWER_TABLES:
+            c.execute(text(f'drop table "{table}"'))
         c.execute(text("drop table alembic_version"))
 
     upgrade(engine)

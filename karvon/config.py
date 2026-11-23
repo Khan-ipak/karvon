@@ -17,13 +17,18 @@ class Settings:
     database_url: str = field(
         default_factory=lambda: os.environ.get("KARVON_DATABASE_URL", "sqlite:///./karvon.db")
     )
-    seed_demo: bool = field(
-        default_factory=lambda: _bool(os.environ.get("KARVON_SEED_DEMO"), True)
-    )
+    seed_demo: bool = field(default_factory=lambda: _bool(os.environ.get("KARVON_SEED_DEMO"), True))
     default_language: str = field(
         default_factory=lambda: os.environ.get("KARVON_DEFAULT_LANGUAGE", "en")
     )
     currency: str = field(default_factory=lambda: os.environ.get("KARVON_CURRENCY", "USD"))
     terminal_name: str = field(
         default_factory=lambda: os.environ.get("KARVON_TERMINAL_NAME", "Demo Border Terminal")
+    )
+    # Creates this admin on startup if no user has that name yet.
+    admin_username: str = field(
+        default_factory=lambda: os.environ.get("KARVON_ADMIN_USERNAME", "admin")
+    )
+    admin_password: str | None = field(
+        default_factory=lambda: os.environ.get("KARVON_ADMIN_PASSWORD") or None, repr=False
     )

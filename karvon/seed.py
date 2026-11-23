@@ -13,7 +13,16 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from karvon import services
-from karvon.models import OperationType, Tariff, TariffUnit, Visit, YardSlot, YardZone, utcnow
+from karvon.models import (
+    OperationType,
+    Role,
+    Tariff,
+    TariffUnit,
+    Visit,
+    YardSlot,
+    YardZone,
+    utcnow,
+)
 
 TARIFFS = [
     ("parking_day", "TIR parking, per day", TariffUnit.day, "15.00"),
@@ -117,9 +126,30 @@ def seed_demo_visits(session: Session) -> None:
     session.flush()
 
 
+DEMO_USERS = [
+    (Role.admin, "Demo Admin"),
+    (Role.operator, "Dilshod (gate)"),
+    (Role.yard, "Bekzod (yard)"),
+    (Role.customs, "Nodira (customs broker)"),
+    (Role.warehouse, "Jasur (warehouse)"),
+    (Role.accountant, "Malika (accountant)"),
+]
+
+
+def seed_demo_users(session: Session) -> None:
+    """One user per role; the password is the username. Only for an empty user table."""
+    from karvon import auth
+
+    if auth.count_users(session):
+        return
+    for role, name in DEMO_USERS:
+        auth.create_user(session, role.value, role.value, role, name, check_length=False)
+
+
 def seed(session: Session, *, demo: bool = True) -> None:
     seed_reference_data(session)
     if demo:
+        seed_demo_users(session)
         seed_demo_visits(session)
 
 

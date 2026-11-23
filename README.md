@@ -59,7 +59,9 @@ docker compose up
 ```
 
 Open <http://localhost:8000>. A demo terminal with trucks in different stages is
-created on first start.
+created on first start, with one demo user per role. The password is the
+username: log in as `admin` / `admin`, or as `customs` / `customs` to see what a
+customs broker sees.
 
 Without Docker (uses SQLite):
 
@@ -67,6 +69,35 @@ Without Docker (uses SQLite):
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 uvicorn karvon.main:app --reload
+```
+
+## Users and roles
+
+Every action is done by a logged-in user, and every visit keeps a history of
+who did what and when.
+
+| Role         | Can                                                     |
+|--------------|---------------------------------------------------------|
+| `operator`   | Gate in, plan operations, weigh, request exit, gate out |
+| `yard`       | Park vehicles, weigh                                    |
+| `customs`    | Mark operations as customs cleared                      |
+| `warehouse`  | Start, complete and cancel operations                   |
+| `accountant` | Take payment                                            |
+| `admin`      | Everything, plus managing users                         |
+
+Everyone who is logged in can view visits, the yard and stock. The API accepts
+the browser session or HTTP Basic auth:
+
+```bash
+curl -u operator:operator http://localhost:8000/api/v1/visits
+```
+
+For a real terminal, turn off demo data and create your own admin:
+
+```bash
+KARVON_SEED_DEMO=0 KARVON_ADMIN_PASSWORD='a long password' uvicorn karvon.main:app
+# or, any time later:
+python -m karvon.users create admin --role admin
 ```
 
 ## How a visit flows
@@ -84,7 +115,8 @@ lifecycle are in [`docs/architecture.md`](docs/architecture.md).
 | Variable                  | Default                  | Description                      |
 |---------------------------|--------------------------|----------------------------------|
 | `KARVON_DATABASE_URL`     | `sqlite:///./karvon.db`  | Any SQLAlchemy URL (PostgreSQL recommended) |
-| `KARVON_SEED_DEMO`        | `1`                      | Create demo trucks on an empty database |
+| `KARVON_SEED_DEMO`        | `1`                      | Create demo trucks and demo users (password = username) on an empty database. **Set to `0` in production** |
+| `KARVON_ADMIN_PASSWORD`   | —                        | On startup, create user `KARVON_ADMIN_USERNAME` (default `admin`) with this password if it doesn't exist |
 | `KARVON_TERMINAL_NAME`    | `Demo Border Terminal`   | Shown in the UI                  |
 | `KARVON_DEFAULT_LANGUAGE` | `en`                     | `en`, `ru`, `uz`, …              |
 | `KARVON_CURRENCY`         | `USD`                    | Display currency                 |
@@ -93,7 +125,7 @@ lifecycle are in [`docs/architecture.md`](docs/architecture.md).
 
 - [x] Gate, yard, operations, warehouse, weighbridge, billing
 - [x] EN / RU / UZ interface
-- [ ] Users, roles and audit log
+- [x] Users, roles and audit log
 - [x] Database migrations (Alembic)
 - [ ] Weighbridge hardware driver (RS-232 / TCP)
 - [ ] ANPR camera at the gate

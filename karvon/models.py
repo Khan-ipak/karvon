@@ -52,6 +52,17 @@ class OperationStatus(enum.StrEnum):
     cancelled = "cancelled"
 
 
+class Role(enum.StrEnum):
+    """Who does what at the terminal. See `karvon.auth.PERMISSIONS`."""
+
+    admin = "admin"
+    operator = "operator"  # gate / central operations
+    yard = "yard"  # yard manager
+    customs = "customs"  # customs broker
+    warehouse = "warehouse"  # warehouse manager
+    accountant = "accountant"
+
+
 class TariffUnit(enum.StrEnum):
     day = "day"
     tonne = "tonne"
@@ -91,9 +102,7 @@ class YardZone(Base):
     code: Mapped[str] = mapped_column(String(16), unique=True)
     name: Mapped[str] = mapped_column(String(64))
 
-    slots: Mapped[list[YardSlot]] = relationship(
-        back_populates="zone", order_by="YardSlot.code"
-    )
+    slots: Mapped[list[YardSlot]] = relationship(back_populates="zone", order_by="YardSlot.code")
 
 
 class YardSlot(Base):
@@ -140,6 +149,9 @@ class Visit(Base):
         back_populates="visit", order_by="WeighTicket.id"
     )
     charges: Mapped[list[Charge]] = relationship(back_populates="visit", order_by="Charge.id")
+    audit_events: Mapped[list[AuditEvent]] = relationship(
+        back_populates="visit", order_by="AuditEvent.id"
+    )
 
     @property
     def total_due(self) -> Decimal:
@@ -223,3 +235,45 @@ class Charge(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
     visit: Mapped[Visit] = relationship(back_populates="charges")
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    full_name: Mapped[str] = mapped_column(String(128))
+    role: Mapped[Role] = mapped_column(_enum(Role))
+    password_hash: Mapped[str] = mapped_column(String(255))
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class UserSession(Base):
+    """A login. The cookie holds a random token; only its SHA-256 is stored."""
+
+    __tablename__ = "user_sessions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    user: Mapped[User] = relationship()
+
+
+class AuditEvent(Base):
+    """Who did what and when. `username` is copied so history survives user changes."""
+
+    __tablename__ = "audit_events"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
+    username: Mapped[str] = mapped_column(String(64))
+    action: Mapped[str] = mapped_column(String(32), index=True)
+    visit_id: Mapped[int | None] = mapped_column(ForeignKey("visits.id"), index=True)
+    details: Mapped[str | None] = mapped_column(Text)
+
+    visit: Mapped[Visit | None] = relationship(back_populates="audit_events")

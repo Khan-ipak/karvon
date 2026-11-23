@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ t("auth.login") }}{% endblock %}
+{% block content %}
+<article class="login">
+  <h2>{{ t("auth.login") }}</h2>
+  <form method="post" action="/login">
+    <input type="hidden" name="next" value="{{ next }}">
+    <label>{{ t("auth.username") }}<input name="username" value="{{ username or '' }}" required autofocus autocomplete="username"></label>
+    <label>{{ t("auth.password") }}<input type="password" name="password" required autocomplete="current-password"></label>
+    <button type="submit">{{ t("auth.submit") }}</button>
+  </form>
+  {% if demo %}
+  <small>{{ t("auth.demo_hint") }}</small>
+  <ul>
+    {% for role in ["admin", "operator", "yard", "customs", "warehouse", "accountant"] %}
+    <li><small><code>{{ role }}</code> / <code>{{ role }}</code> · {{ t("role." ~ role) }}</small></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</article>
+{% endblock %}

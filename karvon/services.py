@@ -17,6 +17,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from karvon.models import (
+    AuditEvent,
     Charge,
     Driver,
     Operation,
@@ -59,6 +60,22 @@ def get[T](session: Session, model: type[T], ident: object) -> T:
     if obj is None:
         raise NotFound(model.__name__, ident)
     return obj
+
+
+def audit(
+    session: Session, action: str, visit: Visit | None = None, details: str | None = None
+) -> None:
+    """Record who did what. The web/API layer puts the logged-in user in `session.info`."""
+    actor = session.info.get("actor")
+    session.add(
+        AuditEvent(
+            user_id=actor.id if actor else None,
+            username=actor.username if actor else "system",
+            action=action,
+            visit=visit,
+            details=details,
+        )
+    )
 
 
 def _money(value: Decimal) -> Decimal:
@@ -115,6 +132,7 @@ def gate_in(session: Session, data: GateInData) -> Visit:
         cargo_description=data.cargo_description,
     )
     session.add(visit)
+    audit(session, "gate_in", visit, plate)
     session.flush()
     return visit
 
@@ -135,9 +153,8 @@ def request_exit(session: Session, visit_id: int) -> Visit:
     if days > 0:
         _add_charge(session, visit, PARKING_TARIFF, Decimal(days), f"Parking, {days} day(s)")
 
-    visit.status = (
-        VisitStatus.cleared if visit.total_due == 0 else VisitStatus.awaiting_payment
-    )
+    visit.status = VisitStatus.cleared if visit.total_due == 0 else VisitStatus.awaiting_payment
+    audit(session, "request_exit", visit, f"{visit.total_due}")
     session.flush()
     return visit
 
@@ -149,6 +166,7 @@ def gate_out(session: Session, visit_id: int) -> Visit:
     visit.slot = None
     visit.status = VisitStatus.exited
     visit.exited_at = utcnow()
+    audit(session, "gate_out", visit)
     session.flush()
     return visit
 
@@ -188,11 +206,16 @@ def park(session: Session, visit_id: int, slot_id: int | None = None) -> Visit:
 
     visit.slot = slot
     visit.status = VisitStatus.parked
+    audit(session, "park", visit, slot.label)
     session.flush()
     return visit
 
 
 # --- operations --------------------------------------------------------------
+
+
+def _op_details(op: Operation) -> str:
+    return f"#{op.id} {op.type.value}, {op.weight_kg} kg"
 
 
 @dataclass
@@ -241,6 +264,7 @@ def plan_operation(session: Session, visit_id: int, data: OperationData) -> Oper
         raise DomainError("owner_required", "Warehouse unload needs a cargo owner")
 
     session.flush()
+    audit(session, "plan_operation", visit, _op_details(op))
     return op
 
 
@@ -252,6 +276,7 @@ def start_operation(session: Session, operation_id: int) -> Operation:
         raise DomainError("not_parked", "Vehicle must be parked before the operation starts")
     op.status = OperationStatus.in_progress
     op.visit.status = VisitStatus.in_operation
+    audit(session, "start_operation", op.visit, _op_details(op))
     session.flush()
     return op
 
@@ -282,6 +307,7 @@ def complete_operation(session: Session, operation_id: int) -> Operation:
 
     if not any(o.status == OperationStatus.in_progress for o in op.visit.operations):
         op.visit.status = VisitStatus.parked
+    audit(session, "complete_operation", op.visit, _op_details(op))
     session.flush()
     return op
 
@@ -296,6 +322,7 @@ def cancel_operation(session: Session, operation_id: int) -> Operation:
         o.status == OperationStatus.in_progress for o in op.visit.operations
     ):
         op.visit.status = VisitStatus.parked
+    audit(session, "cancel_operation", op.visit, _op_details(op))
     session.flush()
     return op
 
@@ -306,6 +333,7 @@ def set_customs_cleared(session: Session, operation_id: int, cleared: bool = Tru
     if op.status == OperationStatus.cancelled:
         raise DomainError("bad_status", "Operation is cancelled")
     op.customs_cleared = cleared
+    audit(session, "customs" if cleared else "customs_revoked", op.visit, _op_details(op))
     session.flush()
     return op
 
@@ -322,6 +350,7 @@ def weigh(session: Session, visit_id: int, gross_kg: Decimal, tare_kg: Decimal) 
     ticket = WeighTicket(visit=visit, gross_kg=gross_kg, tare_kg=tare_kg)
     session.add(ticket)
     _add_charge(session, visit, WEIGHBRIDGE_TARIFF, Decimal(1), "Weighbridge")
+    audit(session, "weigh", visit, f"{gross_kg - tare_kg} kg")
     session.flush()
     return ticket
 
@@ -352,6 +381,7 @@ def pay_visit(session: Session, visit_id: int) -> Visit:
     """Mark all open charges as paid. Payment gateways are out of scope for v0.1."""
     visit = get(session, Visit, visit_id)
     now = utcnow()
+    audit(session, "pay", visit, f"{visit.total_due}")
     for charge in visit.charges:
         if not charge.paid:
             charge.paid = True
@@ -375,9 +405,7 @@ def list_visits(
     plate = (plate or "").strip().upper()
     if plate:
         # plates are stored upper-case; autoescape keeps % and _ literal
-        stmt = stmt.join(Visit.vehicle).where(
-            Vehicle.plate_number.contains(plate, autoescape=True)
-        )
+        stmt = stmt.join(Visit.vehicle).where(Vehicle.plate_number.contains(plate, autoescape=True))
     return list(session.scalars(stmt))
 
 

@@ -22,8 +22,8 @@
   </article>
   <article>
     <h4>{{ t("visit.actions") }}</h4>
-    <div class="actions">
-      {% if s in ["registered", "parked"] %}
+    {% set actions_html %}
+      {% if s in ["registered", "parked"] and can("park") %}
       <form method="post" action="/visits/{{ visit.id }}/action/park" class="actions">
         <select name="slot_id" aria-label="{{ t('visit.slot') }}">
           <option value="">{{ t("yard.auto") }}</option>
@@ -31,16 +31,18 @@
         </select>
         <button type="submit">{{ t("action.park") }}</button>
       </form>
+      {% endif %}
+      {% if s in ["registered", "parked"] and can("gate") %}
       <form method="post" action="/visits/{{ visit.id }}/action/request-exit">
         <button type="submit" class="secondary">{{ t("action.request_exit") }}</button>
       </form>
       {% endif %}
-      {% if s == "awaiting_payment" %}
+      {% if s == "awaiting_payment" and can("pay") %}
       <form method="post" action="/visits/{{ visit.id }}/action/pay">
         <button type="submit">{{ t("action.pay") }} {{ visit.total_due }} {{ currency }}</button>
       </form>
       {% endif %}
-      {% if s == "cleared" %}
+      {% if s == "cleared" and can("gate") %}
       <form method="post" action="/visits/{{ visit.id }}/action/gate-out">
         <button type="submit">{{ t("action.gate_out") }}</button>
       </form>
@@ -48,7 +50,9 @@
       {% if s in ["cleared", "exited"] %}
       <a href="/visits/{{ visit.id }}/pass" target="_blank" role="button" class="outline">{{ t("pass.title") }}</a>
       {% endif %}
-    </div>
+    {% endset %}
+    {% if actions_html.strip() %}<div class="actions">{{ actions_html }}</div>
+    {% else %}<p><small>{{ t("visit.no_actions") }}</small></p>{% endif %}
   </article>
 </div>
 
@@ -71,16 +75,16 @@
     <td><span class="badge {{ op.status.value }}">{{ t("opstatus." ~ op.status.value) }}</span></td>
     <td>{{ "✔" if op.customs_cleared else "—" }}</td>
     <td class="actions">
-      {% if op.status.value == "planned" %}
+      {% if op.status.value == "planned" and can("run_operation") %}
         <form method="post" action="/operations/{{ op.id }}/action/start"><button>{{ t("action.start") }}</button></form>
       {% endif %}
-      {% if op.status.value == "in_progress" %}
+      {% if op.status.value == "in_progress" and can("run_operation") %}
         <form method="post" action="/operations/{{ op.id }}/action/complete"><button>{{ t("action.complete") }}</button></form>
       {% endif %}
-      {% if op.status.value in ["planned", "in_progress"] %}
+      {% if op.status.value in ["planned", "in_progress"] and can("cancel_operation") %}
         <form method="post" action="/operations/{{ op.id }}/action/cancel"><button class="secondary outline">{{ t("action.cancel") }}</button></form>
       {% endif %}
-      {% if not op.customs_cleared and op.status.value != "cancelled" %}
+      {% if not op.customs_cleared and op.status.value != "cancelled" and can("customs") %}
         <form method="post" action="/operations/{{ op.id }}/action/customs"><button class="contrast outline">{{ t("action.customs") }}</button></form>
       {% endif %}
     </td>
@@ -91,7 +95,7 @@
 </div>
 {% endif %}
 
-{% if on_site %}
+{% if on_site and can("plan_operation") %}
 <details>
   <summary role="button" class="outline">{{ t("op.plan") }}</summary>
   <form method="post" action="/visits/{{ visit.id }}/action/operation">
@@ -136,7 +140,7 @@
   </tbody>
 </table>
 {% endif %}
-{% if on_site %}
+{% if on_site and can("weigh") %}
 <form method="post" action="/visits/{{ visit.id }}/action/weigh">
   <fieldset role="group">
     <input name="gross_kg" placeholder="{{ t('weigh.gross') }}" inputmode="decimal" required>
@@ -161,6 +165,24 @@
   </tbody>
   <tfoot><tr><th colspan="3">{{ t("visit.due") }}</th><th>{{ visit.total_due }} {{ currency }}</th><th></th></tr></tfoot>
 </table>
+{% else %}
+<p>{{ t("common.none") }}</p>
+{% endif %}
+
+<h3>{{ t("history.title") }}</h3>
+{% if visit.audit_events %}
+<div class="overflow-auto">
+<table>
+  <thead><tr><th>{{ t("history.when") }}</th><th>{{ t("history.who") }}</th><th>{{ t("history.action") }}</th><th></th></tr></thead>
+  <tbody>
+  {% for e in visit.audit_events %}
+  {% set label = t("audit." ~ e.action) %}
+  <tr><td>{{ e.at.strftime("%Y-%m-%d %H:%M") }}</td><td>{{ e.username }}</td>
+      <td>{{ e.action if label.startswith("audit.") else label }}</td><td>{{ e.details or "" }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
 {% else %}
 <p>{{ t("common.none") }}</p>
 {% endif %}
