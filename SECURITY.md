@@ -23,7 +23,12 @@ advisory unless you prefer to stay anonymous.
 
 ## Deploying safely
 
-Version 0.1 has **no login yet** (see [#10](https://github.com/Khan-ipak/karvon/issues/10)).
-Don't expose it to the internet. Run it on a closed local network or behind a VPN
-or a reverse proxy with authentication, and change the default database password
-in `docker-compose.yml`.
+Version 0.1.0 had no login. Later versions have users and roles; to run one safely:
+
+- set `KARVON_SEED_DEMO=0`, otherwise demo users with password = username exist;
+- create the first admin with `KARVON_ADMIN_PASSWORD` or `python -m karvon.users`;
+- serve it over HTTPS (a reverse proxy is fine), so the session cookie is sent
+  only over TLS;
+- change the default database password in `docker-compose.yml`.
+
+There is no login rate limit yet, so prefer a closed network or VPN for now.

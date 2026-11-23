@@ -19,6 +19,8 @@ services:
         condition: service_healthy
     environment:
       KARVON_DATABASE_URL: postgresql+psycopg://karvon:karvon@db:5432/karvon
+      # Demo trucks and demo users (password = username). Use "0" for a real terminal
+      # and set KARVON_ADMIN_PASSWORD to create the first admin.
       KARVON_SEED_DEMO: "1"
       KARVON_TERMINAL_NAME: Demo Border Terminal
       KARVON_DEFAULT_LANGUAGE: en

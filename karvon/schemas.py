@@ -7,7 +7,7 @@ from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from karvon.models import OperationStatus, OperationType, TariffUnit, VisitStatus
+from karvon.models import OperationStatus, OperationType, Role, TariffUnit, VisitStatus
 
 
 class ORM(BaseModel):
@@ -142,6 +142,23 @@ class TariffOut(ORM):
     name: str
     unit: TariffUnit
     price: Decimal
+
+
+class UserOut(ORM):
+    id: int
+    username: str
+    full_name: str
+    role: Role
+    active: bool
+
+
+class AuditEventOut(ORM):
+    id: int
+    at: datetime
+    username: str
+    action: str
+    visit_id: int | None
+    details: str | None
 
 
 class ErrorOut(BaseModel):

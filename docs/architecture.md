@@ -32,6 +32,7 @@ Diagrams live next to it in [`architecture.puml`](architecture.puml).
 ```
 Vehicle 1───* Visit *───1 Driver
                 │
+                ├──*    AuditEvent ──0..1 User (who did it)
                 ├──0..1 YardSlot (current parking place)
                 ├──*    Operation ──*  StockLot (warehouse movements)
                 ├──*    WeighTicket
@@ -66,11 +67,27 @@ Exit rules (enforced in `karvon.services`):
 Customs clearance is a flag on the operation and can be set **before or after**
 the physical work, matching how real border terminals work.
 
+## Users, roles and audit
+
+`karvon/auth.py` maps each permission to the roles that have it
+(`PERMISSIONS`); `admin` has all of them. The API checks permissions with a
+dependency per route, the UI checks them in the action handlers and hides
+buttons the user can't use. Viewing needs only a login.
+
+Logins are server-side sessions: the cookie holds a random token and the
+`user_sessions` table keeps its SHA-256. Deactivating a user or resetting a
+password ends that user's sessions. Passwords are hashed with scrypt.
+
+Every state change in `services.py` calls `audit()`, which writes an
+`AuditEvent` with the user taken from `session.info["actor"]`. Changes made
+without a user (seed, scripts) are recorded as `system`.
+
 ## Layers
 
 ```
 karvon/
   api.py      JSON REST API (FastAPI router), documented at /docs
+  auth.py     Users, passwords, login sessions, permissions
   web.py      HTML UI (Jinja2 templates in templates/), uses the same services
   services.py Business rules and state transitions. No HTTP here.
   models.py   SQLAlchemy models
@@ -84,7 +101,6 @@ Both the API and the UI call `services`. Rules live in one place.
 
 ## Roadmap after v0.1
 
-- Authentication and roles (operator, customs broker, warehouse, accountant, yard)
 - Weighbridge hardware driver (serial / TCP)
 - ANPR camera integration at the gate
 - CMR / TIR document generation (PDF)

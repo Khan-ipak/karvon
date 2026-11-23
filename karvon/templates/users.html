@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{{ t("nav.users") }}{% endblock %}
+{% block content %}
+<style>
+  fieldset.compact { margin: 0; }
+  fieldset.compact input, fieldset.compact button { padding: .3rem .6rem; font-size: .85rem; height: auto; }
+</style>
+<h2>{{ t("nav.users") }}</h2>
+<div class="overflow-auto">
+<table>
+  <thead><tr><th>{{ t("auth.username") }}</th><th>{{ t("users.full_name") }}</th><th>{{ t("users.role") }}</th>
+    <th>{{ t("users.active") }}</th><th></th></tr></thead>
+  <tbody>
+  {% for u in users %}
+  <tr>
+    <td><code>{{ u.username }}</code></td>
+    <td>{{ u.full_name }}</td>
+    <td>{{ t("role." ~ u.role.value) }}</td>
+    <td>{{ "✔" if u.active else "—" }}</td>
+    <td class="actions">
+      {% if u.active and u.id != user.id %}
+      <form method="post" action="/users/{{ u.id }}/deactivate"><button class="secondary outline">{{ t("users.deactivate") }}</button></form>
+      {% elif not u.active %}
+      <form method="post" action="/users/{{ u.id }}/activate"><button class="outline">{{ t("users.activate") }}</button></form>
+      {% endif %}
+      <form method="post" action="/users/{{ u.id }}/password">
+        <fieldset role="group" class="compact">
+          <input type="password" name="password" placeholder="{{ t('users.new_password') }}" minlength="8" required autocomplete="new-password" aria-label="{{ t('users.new_password') }}">
+          <button class="contrast outline">{{ t("users.set_password") }}</button>
+        </fieldset>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<h3>{{ t("users.add") }}</h3>
+<form method="post" action="/users">
+  <fieldset class="grid">
+    <label>{{ t("auth.username") }} *<input name="username" required maxlength="64" autocomplete="off"></label>
+    <label>{{ t("users.full_name") }}<input name="full_name" maxlength="128"></label>
+    <label>{{ t("users.role") }}
+      <select name="role">
+        {% for r in roles %}<option value="{{ r.value }}">{{ t("role." ~ r.value) }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>{{ t("auth.password") }} *<input type="password" name="password" required minlength="8" autocomplete="new-password"></label>
+  </fieldset>
+  <button type="submit">{{ t("users.add") }}</button>
+</form>
+{% endblock %}

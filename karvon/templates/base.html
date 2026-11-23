@@ -36,6 +36,9 @@
     .lang a { margin-left: .5rem; }
     .lang a.current { font-weight: 700; text-decoration: underline; }
     table { font-size: .9rem; }
+    form.logout { display: flex; gap: .5rem; align-items: center; margin: 0; }
+    form.logout button { margin: 0; padding: .2rem .6rem; font-size: .8rem; }
+    .login { max-width: 24rem; margin: 2rem auto; }
   </style>
 </head>
 <body>
@@ -45,16 +48,27 @@
       <li><small>{{ terminal_name }}</small></li>
     </ul>
     <ul>
+      {% if user %}
       <li><a href="/">{{ t("nav.dashboard") }}</a></li>
-      <li><a href="/gate">{{ t("nav.gate_in") }}</a></li>
+      {% if can("gate") %}<li><a href="/gate">{{ t("nav.gate_in") }}</a></li>{% endif %}
       <li><a href="/yard">{{ t("nav.yard") }}</a></li>
       <li><a href="/stock">{{ t("nav.stock") }}</a></li>
+      {% if can("manage_users") %}<li><a href="/users">{{ t("nav.users") }}</a></li>{% endif %}
       <li><a href="/docs">API</a></li>
+      {% endif %}
       <li class="lang">
         {% for code, name in languages.items() %}
           <a href="/lang/{{ code }}" class="{{ 'current' if code == lang }}" title="{{ name }}">{{ code|upper }}</a>
         {% endfor %}
       </li>
+      {% if user %}
+      <li>
+        <form method="post" action="/logout" class="logout">
+          <small title="{{ t('role.' ~ user.role.value) }}">{{ user.full_name }} · {{ t("role." ~ user.role.value) }}</small>
+          <button type="submit" class="secondary outline">{{ t("auth.logout") }}</button>
+        </form>
+      </li>
+      {% endif %}
     </ul>
   </nav>
   <main class="container">
