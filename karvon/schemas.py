@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -159,6 +159,47 @@ class AuditEventOut(ORM):
     action: str
     visit_id: int | None
     details: str | None
+
+
+class DayRowOut(ORM):
+    day: date
+    arrivals: int
+    exits: int
+    revenue: Decimal
+
+
+class OperationRowOut(ORM):
+    type: OperationType
+    count: int
+    tonnes: Decimal
+
+
+class RevenueRowOut(ORM):
+    tariff_code: str
+    name: str
+    amount: Decimal
+    paid: Decimal
+    unpaid: Decimal
+
+
+class DwellOut(ORM):
+    count: int
+    average_hours: float
+    median_hours: float
+    max_hours: float
+
+
+class ReportOut(ORM):
+    start: date
+    end: date
+    arrivals: int
+    exits: int
+    revenue_total: Decimal
+    paid_total: Decimal
+    dwell: DwellOut | None = Field(description="Time on site of vehicles that left in the period")
+    operations: list[OperationRowOut]
+    revenue: list[RevenueRowOut]
+    days: list[DayRowOut]
 
 
 class ErrorOut(BaseModel):

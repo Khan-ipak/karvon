@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import date
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Annotated
@@ -13,7 +14,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from karvon import auth, services
+from karvon import auth, reports, services
 from karvon.db import get_session
 from karvon.i18n import languages, translator
 from karvon.models import (
@@ -197,6 +198,32 @@ def yard_page(request: Request, db: DB):
 def stock_page(request: Request, db: DB):
     lots = list(db.scalars(select(StockLot).where(StockLot.quantity_kg > 0)))
     return render(request, "stock.html", lots=lots)
+
+
+@pages.get("/reports", response_class=HTMLResponse)
+def reports_page(request: Request, user: CurrentUser, db: DB, start: str = "", end: str = ""):
+    t = translator(_lang(request))
+    if not auth.can(user, "reports"):
+        return back_to("/", t("auth.forbidden"))
+    error = None
+    try:
+        first, last = reports.period(_date(start), _date(end))
+    except services.DomainError as e:
+        error = e.message
+        first, last = reports.period(None, None)
+    return render(
+        request, "reports.html", report=reports.build(db, first, last), error=error or None
+    )
+
+
+def _date(value: str) -> date | None:
+    value = value.strip()
+    if not value:
+        return None
+    try:
+        return date.fromisoformat(value)
+    except ValueError as exc:
+        raise services.DomainError("invalid_date", f"Not a date: {value!r}") from exc
 
 
 @router.get("/lang/{code}")

@@ -124,6 +124,73 @@ def seed_demo_visits(session: Session) -> None:
         ),
     )
     session.flush()
+    seed_demo_history(session)
+
+
+# (plate, country, driver, passport, days ago it left, hours on site, unloaded kg or 0)
+PAST_VISITS = [
+    ("01H112KA", "UZ", "Ulugbek Nazarov", "AD1100231", 1, 9, 15000),
+    ("KDR-1907", "AF", "Gul Mohammad", "P1203398", 2, 41, 22000),
+    ("40C908BB", "UZ", "Rustam Aliev", "AE5502117", 3, 5, 0),
+    ("ISB-2271", "PK", "Bilal Ahmed", "PK8830142", 4, 66, 19500),
+    ("MZR-3310", "AF", "Najib Rahimi", "P2290871", 6, 28, 17000),
+    ("01K450TT", "UZ", "Akmal Yusupov", "AC9901443", 8, 12, 0),
+    ("KBL-6604", "AF", "Farid Sultani", "P3381120", 10, 50, 20000),
+    ("LHE-5512", "PK", "Usman Tariq", "PK9013376", 13, 19, 14000),
+]
+
+
+def seed_demo_history(session: Session) -> None:
+    """Vehicles that already came and left, so reports and history have data."""
+    from sqlalchemy import update
+
+    from karvon.models import AuditEvent, Charge, Operation
+
+    now = utcnow().replace(minute=0, second=0, microsecond=0)
+    for plate, country, driver, passport, days_ago, hours, kg in PAST_VISITS:
+        left = now - timedelta(days=days_ago, hours=3)
+        arrived = left - timedelta(hours=hours)
+        visit = services.gate_in(
+            session,
+            services.GateInData(
+                plate_number=plate, country=country, driver_name=driver, driver_passport=passport
+            ),
+        )
+        visit.arrived_at = arrived
+        services.park(session, visit.id)
+        services.weigh(session, visit.id, Decimal(kg + 15000), Decimal(15000))
+        if kg:
+            op = services.plan_operation(
+                session,
+                visit.id,
+                services.OperationData(
+                    type=OperationType.warehouse_unload,
+                    weight_kg=Decimal(kg),
+                    cargo_owner="Termez Fruit Trade LLC",
+                ),
+            )
+            services.set_customs_cleared(session, op.id)
+            services.start_operation(session, op.id)
+            services.complete_operation(session, op.id)
+        visit.exited_at = left  # parking is charged up to this moment
+        services.request_exit(session, visit.id)
+        services.pay_visit(session, visit.id)
+        services.gate_out(session, visit.id)
+        visit.exited_at = left
+        session.flush()
+        # Move everything that just happened to the visit's own past times.
+        for model, column in (
+            (Charge, Charge.created_at),
+            (Operation, Operation.completed_at),
+            (AuditEvent, AuditEvent.at),
+        ):
+            session.execute(update(model).where(model.visit_id == visit.id).values({column: left}))
+        session.execute(
+            update(AuditEvent)
+            .where(AuditEvent.visit_id == visit.id, AuditEvent.action == "gate_in")
+            .values(at=arrived)
+        )
+        session.execute(update(Charge).where(Charge.visit_id == visit.id).values(paid_at=left))
 
 
 DEMO_USERS = [

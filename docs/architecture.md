@@ -88,6 +88,7 @@ without a user (seed, scripts) are recorded as `system`.
 karvon/
   api.py      JSON REST API (FastAPI router), documented at /docs
   auth.py     Users, passwords, login sessions, permissions
+  reports.py  Throughput, dwell time and revenue for a period
   web.py      HTML UI (Jinja2 templates in templates/), uses the same services
   services.py Business rules and state transitions. No HTTP here.
   models.py   SQLAlchemy models
@@ -105,4 +106,3 @@ Both the API and the UI call `services`. Rules live in one place.
 - ANPR camera integration at the gate
 - CMR / TIR document generation (PDF)
 - Yard map view
-- Reports: dwell time, throughput, revenue

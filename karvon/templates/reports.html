@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}{{ t("nav.reports") }}{% endblock %}
+{% block content %}
+<style>
+  .bar { display: inline-block; height: .6rem; border-radius: .2rem; vertical-align: middle; margin-right: .3rem; }
+  .bar.in { background: #2563eb; }
+  .bar.out { background: #94a3b8; }
+  .bar.money { background: #16a34a; }
+  td.num, th.num { text-align: right; white-space: nowrap; }
+</style>
+<h2>{{ t("nav.reports") }}</h2>
+
+<form method="get" action="/reports">
+  <fieldset role="group">
+    <input type="date" name="start" value="{{ report.start.isoformat() }}" aria-label="{{ t('reports.from') }}">
+    <input type="date" name="end" value="{{ report.end.isoformat() }}" aria-label="{{ t('reports.to') }}">
+    <button type="submit">{{ t("reports.show") }}</button>
+  </fieldset>
+</form>
+<p><small>{{ report.start.isoformat() }} — {{ report.end.isoformat() }} · {{ t("reports.utc_note") }} ·
+  <a href="/api/v1/reports?from={{ report.start.isoformat() }}&to={{ report.end.isoformat() }}">JSON</a></small></p>
+
+<section class="stats">
+  <article><strong>{{ report.arrivals }}</strong>{{ t("reports.arrivals") }}</article>
+  <article><strong>{{ report.exits }}</strong>{{ t("reports.exits") }}</article>
+  <article><strong>{{ report.dwell.average_hours if report.dwell else "—" }}</strong>{{ t("reports.avg_dwell") }}</article>
+  <article><strong>{{ report.revenue_total }}</strong>{{ t("reports.revenue") }}, {{ currency }}</article>
+</section>
+
+<h3>{{ t("reports.dwell") }}</h3>
+{% if report.dwell %}
+<table>
+  <tbody>
+    <tr><td>{{ t("reports.vehicles_left") }}</td><td class="num">{{ report.dwell.count }}</td></tr>
+    <tr><td>{{ t("reports.avg_hours") }}</td><td class="num">{{ report.dwell.average_hours }}</td></tr>
+    <tr><td>{{ t("reports.median_hours") }}</td><td class="num">{{ report.dwell.median_hours }}</td></tr>
+    <tr><td>{{ t("reports.max_hours") }}</td><td class="num">{{ report.dwell.max_hours }}</td></tr>
+  </tbody>
+</table>
+{% else %}
+<p>{{ t("reports.no_exits") }}</p>
+{% endif %}
+
+<h3>{{ t("reports.operations") }}</h3>
+<table>
+  <thead><tr><th>{{ t("op.type") }}</th><th class="num">{{ t("reports.count") }}</th><th class="num">{{ t("reports.tonnes") }}</th></tr></thead>
+  <tbody>
+  {% for row in report.operations %}
+  <tr><td>{{ t("optype." ~ row.type.value) }}</td><td class="num">{{ row.count }}</td><td class="num">{{ row.tonnes }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h3>{{ t("reports.revenue_by_tariff") }}</h3>
+{% if report.revenue %}
+<table>
+  <thead><tr><th>{{ t("charges.desc") }}</th><th class="num">{{ t("charges.amount") }}</th>
+    <th class="num">{{ t("charges.paid") }}</th><th class="num">{{ t("reports.unpaid") }}</th></tr></thead>
+  <tbody>
+  {% for row in report.revenue %}
+  {% set name = t("tariff." ~ row.tariff_code) %}
+  <tr><td>{{ row.name if name.startswith("tariff.") else name }}</td><td class="num">{{ row.amount }}</td>
+      <td class="num">{{ row.paid }}</td><td class="num">{{ row.unpaid }}</td></tr>
+  {% endfor %}
+  </tbody>
+  <tfoot><tr><th>{{ t("reports.total") }}, {{ currency }}</th><th class="num">{{ report.revenue_total }}</th>
+    <th class="num">{{ report.paid_total }}</th><th class="num">{{ report.revenue_total - report.paid_total }}</th></tr></tfoot>
+</table>
+{% else %}
+<p>{{ t("common.none") }}</p>
+{% endif %}
+
+<h3>{{ t("reports.by_day") }}</h3>
+<div class="overflow-auto">
+<table>
+  <thead><tr><th>{{ t("reports.day") }}</th><th>{{ t("reports.arrivals") }} / {{ t("reports.exits") }}</th>
+    <th>{{ t("reports.revenue") }}, {{ currency }}</th></tr></thead>
+  <tbody>
+  {% for d in report.days | reverse %}
+  <tr>
+    <td>{{ d.day.isoformat() }}</td>
+    <td>
+      {% if report.peak_visits %}
+      <span class="bar in" style="width: {{ (d.arrivals / report.peak_visits * 8) | round(2) }}rem"></span>{{ d.arrivals }}<br>
+      <span class="bar out" style="width: {{ (d.exits / report.peak_visits * 8) | round(2) }}rem"></span>{{ d.exits }}
+      {% else %}0 / 0{% endif %}
+    </td>
+    <td>
+      {% if report.peak_revenue %}<span class="bar money" style="width: {{ (d.revenue / report.peak_revenue * 8) | round(2) }}rem"></span>{% endif %}{{ d.revenue }}
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

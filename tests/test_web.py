@@ -7,7 +7,7 @@ import pytest
 
 from karvon.i18n import languages
 
-PAGES = ["/", "/gate", "/yard", "/stock", "/visits/1", "/visits/2", "/visits/3"]
+PAGES = ["/", "/gate", "/yard", "/stock", "/reports", "/visits/1", "/visits/2", "/visits/3"]
 
 
 @pytest.mark.parametrize("lang", sorted(languages()))
