@@ -122,11 +122,22 @@ class VisitDetailOut(VisitOut):
     charges: list[ChargeOut]
 
 
+class SlotVisitOut(ORM):
+    id: int
+    status: VisitStatus
+    vehicle: VehicleOut
+    arrived_at: datetime
+
+
+class ZoneSlotOut(SlotOut):
+    visit: SlotVisitOut | None = Field(description="The vehicle in this slot, if any")
+
+
 class ZoneOut(ORM):
     id: int
     code: str
     name: str
-    slots: list[SlotOut]
+    slots: list[ZoneSlotOut]
 
 
 class StockLotOut(ORM):

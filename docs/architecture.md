@@ -105,4 +105,3 @@ Both the API and the UI call `services`. Rules live in one place.
 - Weighbridge hardware driver (serial / TCP)
 - ANPR camera integration at the gate
 - CMR / TIR document generation (PDF)
-- Yard map view

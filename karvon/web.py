@@ -25,7 +25,7 @@ from karvon.models import (
     User,
     Visit,
     VisitStatus,
-    YardZone,
+    YardSlot,
     utcnow,
 )
 
@@ -80,7 +80,7 @@ def render(request: Request, name: str, **context) -> HTMLResponse:
 
 def back_to(url: str, error: str | None = None) -> RedirectResponse:
     if error:
-        url = f"{url}?error={quote(error)}"
+        url = f"{url}{'&' if '?' in url else '?'}error={quote(error)}"
     return RedirectResponse(url, status_code=303)
 
 
@@ -189,9 +189,47 @@ def exit_pass(request: Request, visit_id: int, db: DB):
 
 
 @pages.get("/yard", response_class=HTMLResponse)
-def yard_page(request: Request, db: DB):
-    zones = list(db.scalars(select(YardZone).order_by(YardZone.code)))
-    return render(request, "yard.html", zones=zones)
+def yard_page(request: Request, db: DB, slot: int | None = None, q: str = ""):
+    yard = services.yard_map(db)
+    selected = db.get(YardSlot, slot) if slot else None
+    if selected is not None and selected.visit is not None:
+        selected = None  # only free slots can be picked
+    movable = []
+    if selected is not None:
+        movable = yard["waiting"] + [
+            v for v in services.list_visits(db, on_site_only=True) if v.status == VisitStatus.parked
+        ]
+    return render(
+        request,
+        "yard.html",
+        **yard,
+        days={
+            v.id: services.parking_days(v)
+            for z in yard["zones"]
+            for s in z.slots
+            if (v := s.visit) is not None
+        },
+        selected=selected,
+        movable=movable,
+        q=q.strip().upper(),
+    )
+
+
+@pages.post("/yard/park")
+def yard_park(
+    request: Request,
+    user: CurrentUser,
+    db: DB,
+    visit_id: Annotated[int, Form()],
+    slot_id: Annotated[int, Form()],
+):
+    try:
+        _check(request, user, "park")
+        services.park(db, visit_id, slot_id)
+    except services.DomainError as e:
+        db.rollback()
+        return back_to(f"/yard?slot={slot_id}", e.message)
+    return back_to("/yard")
 
 
 @pages.get("/stock", response_class=HTMLResponse)

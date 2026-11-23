@@ -213,4 +213,4 @@ def test_visit_page_says_when_role_has_no_actions(client):
     vid = gate_in(client)["id"]
     pw = _add_user(client, "broker", "customs")
     _as(client, "broker", pw)
-    assert "Nothing to do here for your role." in client.get(f"/visits/{vid}").text
+    assert "No actions available right now." in client.get(f"/visits/{vid}").text

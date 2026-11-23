@@ -30,6 +30,7 @@ from karvon.models import (
     VisitStatus,
     WeighTicket,
     YardSlot,
+    YardZone,
     as_utc,
     utcnow,
 )
@@ -209,6 +210,21 @@ def park(session: Session, visit_id: int, slot_id: int | None = None) -> Visit:
     audit(session, "park", visit, slot.label)
     session.flush()
     return visit
+
+
+def yard_map(session: Session) -> dict:
+    """Zones with occupancy, plus vehicles on site that have no slot yet."""
+    zones = list(session.scalars(select(YardZone).order_by(YardZone.code)))
+    total = sum(len(z.slots) for z in zones)
+    occupied = sum(1 for z in zones for s in z.slots if s.visit is not None)
+    waiting = list(
+        session.scalars(
+            select(Visit)
+            .where(Visit.status == VisitStatus.registered, Visit.slot_id.is_(None))
+            .order_by(Visit.arrived_at)
+        )
+    )
+    return {"zones": zones, "total": total, "occupied": occupied, "waiting": waiting}
 
 
 # --- operations --------------------------------------------------------------

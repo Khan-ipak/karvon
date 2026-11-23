@@ -134,7 +134,7 @@
   "audit.request_exit": "Exit requested",
   "audit.pay": "Paid",
   "audit.gate_out": "Gate out",
-  "visit.no_actions": "Nothing to do here for your role.",
+  "visit.no_actions": "No actions available right now.",
   "nav.reports": "Reports",
   "reports.from": "From",
   "reports.to": "To",
@@ -157,5 +157,11 @@
   "reports.unpaid": "Unpaid",
   "reports.total": "Total",
   "reports.by_day": "By day",
-  "reports.day": "Day"
+  "reports.day": "Day",
+  "yard.occupied": "Occupied",
+  "yard.waiting": "Waiting for a slot",
+  "yard.pick_hint": "click a free slot to park a vehicle",
+  "yard.park_into": "Park in slot",
+  "yard.move_from": "move from",
+  "yard.nothing_to_park": "No vehicle is waiting or parked."
 }
