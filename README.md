@@ -20,12 +20,20 @@ parked, transloaded, weighed, cleared and released every day.
 
 <table>
   <tr>
-    <td><img src="docs/img/yard.png" alt="Yard board with occupied and free slots"></td>
-    <td><img src="docs/img/visit.png" alt="Truck visit with weigh ticket and charges"></td>
+    <td><img src="docs/img/yard.png" alt="Yard map: slots coloured by vehicle status, occupancy per zone"></td>
+    <td><img src="docs/img/visit.png" alt="Truck visit with operation, weigh ticket, charges and history"></td>
   </tr>
   <tr>
-    <td align="center"><sub>Yard board</sub></td>
-    <td align="center"><sub>Truck visit: weighing and charges</sub></td>
+    <td align="center"><sub>Yard map: click a free slot to park a truck</sub></td>
+    <td align="center"><sub>Truck visit: weighing, charges and who did what</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/img/reports.png" alt="Reports: arrivals, departures, time on site and revenue"></td>
+    <td><img src="docs/img/login.png" alt="Login page with one demo user per role"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Reports: throughput, time on site, revenue</sub></td>
+    <td align="center"><sub>One login per role: gate, yard, customs, warehouse, accountant</sub></td>
   </tr>
 </table>
 
@@ -141,6 +149,7 @@ lifecycle are in [`docs/architecture.md`](docs/architecture.md).
 - [ ] ANPR camera at the gate
 - [ ] CMR / TIR / invoice PDF generation
 - [x] Reports: dwell time, throughput, revenue
+- [x] Yard map
 - [ ] More languages: Turkish, Dari, Pashto, Kazakh, Tajik
 
 Have a terminal with a different process? [Open an issue](https://github.com/Khan-ipak/karvon/issues).

@@ -134,7 +134,7 @@
   "audit.request_exit": "Запрошен выезд",
   "audit.pay": "Оплачено",
   "audit.gate_out": "Выезд с терминала",
-  "visit.no_actions": "Для вашей роли здесь действий нет.",
+  "visit.no_actions": "Сейчас действий нет.",
   "nav.reports": "Отчёты",
   "reports.from": "С",
   "reports.to": "По",
@@ -157,5 +157,11 @@
   "reports.unpaid": "Не оплачено",
   "reports.total": "Итого",
   "reports.by_day": "По дням",
-  "reports.day": "День"
+  "reports.day": "День",
+  "yard.occupied": "Занято",
+  "yard.waiting": "Ждут место",
+  "yard.pick_hint": "нажмите на свободное место, чтобы поставить машину",
+  "yard.park_into": "Поставить на место",
+  "yard.move_from": "перевести с",
+  "yard.nothing_to_park": "Нет машин, которые ждут место или стоят на стоянке."
 }

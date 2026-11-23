@@ -144,7 +144,7 @@ def seed_demo_history(session: Session) -> None:
     """Vehicles that already came and left, so reports and history have data."""
     from sqlalchemy import update
 
-    from karvon.models import AuditEvent, Charge, Operation
+    from karvon.models import AuditEvent, Charge, Operation, WeighTicket
 
     now = utcnow().replace(minute=0, second=0, microsecond=0)
     for plate, country, driver, passport, days_ago, hours, kg in PAST_VISITS:
@@ -183,6 +183,7 @@ def seed_demo_history(session: Session) -> None:
             (Charge, Charge.created_at),
             (Operation, Operation.completed_at),
             (AuditEvent, AuditEvent.at),
+            (WeighTicket, WeighTicket.created_at),
         ):
             session.execute(update(model).where(model.visit_id == visit.id).values({column: left}))
         session.execute(
