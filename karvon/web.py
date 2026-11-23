@@ -364,13 +364,17 @@ def operation_action(request: Request, user: CurrentUser, operation_id: int, act
 # --- login -------------------------------------------------------------------
 
 
-def _demo(request: Request) -> bool:
-    return request.app.state.settings.seed_demo
+def _demo(request: Request, db: Session) -> bool:
+    """Show the demo logins only while they really work."""
+    if not request.app.state.settings.seed_demo:
+        return False
+    admin = db.scalar(select(User).where(User.username == "admin"))
+    return admin is not None and auth.verify_password("admin", admin.password_hash)
 
 
 @router.get("/login", response_class=HTMLResponse)
-def login_form(request: Request, next: str = "/"):
-    return render(request, "login.html", next=auth.safe_next(next), demo=_demo(request))
+def login_form(request: Request, db: DB, next: str = "/"):
+    return render(request, "login.html", next=auth.safe_next(next), demo=_demo(request, db))
 
 
 @router.post("/login")
@@ -389,7 +393,7 @@ def login_submit(
             "login.html",
             next=auth.safe_next(next),
             username=username,
-            demo=_demo(request),
+            demo=_demo(request, db),
             error=t("auth.bad_login"),
         )
     token = auth.start_session(db, user)
