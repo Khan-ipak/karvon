@@ -36,6 +36,7 @@ PERMISSIONS: dict[str, frozenset[Role]] = {
     "cancel_operation": frozenset({Role.operator, Role.warehouse}),
     "customs": frozenset({Role.customs}),
     "pay": frozenset({Role.accountant}),
+    "reports": frozenset({Role.operator, Role.accountant}),
     "manage_users": frozenset(),
 }
 

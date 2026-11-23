@@ -78,11 +78,11 @@ who did what and when.
 
 | Role         | Can                                                     |
 |--------------|---------------------------------------------------------|
-| `operator`   | Gate in, plan operations, weigh, request exit, gate out |
+| `operator`   | Gate in, plan operations, weigh, request exit, gate out, reports |
 | `yard`       | Park vehicles, weigh                                    |
 | `customs`    | Mark operations as customs cleared                      |
 | `warehouse`  | Start, complete and cancel operations                   |
-| `accountant` | Take payment                                            |
+| `accountant` | Take payment, reports                                   |
 | `admin`      | Everything, plus managing users                         |
 
 Everyone who is logged in can view visits, the yard and stock. The API accepts
@@ -99,6 +99,16 @@ KARVON_SEED_DEMO=0 KARVON_ADMIN_PASSWORD='a long password' uvicorn karvon.main:a
 # or, any time later:
 python -m karvon.users create admin --role admin
 ```
+
+## Reports
+
+`/reports` (and `GET /api/v1/reports?from=2026-11-01&to=2026-11-30`) shows, for
+any period up to a year:
+
+- arrivals and departures per day;
+- time on site of the vehicles that left: average, median, longest;
+- completed operations by type, in tonnes;
+- charges by service, paid and unpaid.
 
 ## How a visit flows
 
@@ -130,7 +140,7 @@ lifecycle are in [`docs/architecture.md`](docs/architecture.md).
 - [ ] Weighbridge hardware driver (RS-232 / TCP)
 - [ ] ANPR camera at the gate
 - [ ] CMR / TIR / invoice PDF generation
-- [ ] Reports: dwell time, throughput, revenue
+- [x] Reports: dwell time, throughput, revenue
 - [ ] More languages: Turkish, Dari, Pashto, Kazakh, Tajik
 
 Have a terminal with a different process? [Open an issue](https://github.com/Khan-ipak/karvon/issues).

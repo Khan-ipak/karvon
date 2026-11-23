@@ -53,6 +53,7 @@
       {% if can("gate") %}<li><a href="/gate">{{ t("nav.gate_in") }}</a></li>{% endif %}
       <li><a href="/yard">{{ t("nav.yard") }}</a></li>
       <li><a href="/stock">{{ t("nav.stock") }}</a></li>
+      {% if can("reports") %}<li><a href="/reports">{{ t("nav.reports") }}</a></li>{% endif %}
       {% if can("manage_users") %}<li><a href="/users">{{ t("nav.users") }}</a></li>{% endif %}
       <li><a href="/docs">API</a></li>
       {% endif %}

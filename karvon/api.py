@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, Request
@@ -10,7 +10,7 @@ from fastapi.responses import Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from karvon import auth, services
+from karvon import auth, reports, services
 from karvon.db import get_session
 from karvon.models import AuditEvent, Operation, StockLot, Tariff, User, Visit, YardZone
 from karvon.schemas import (
@@ -21,6 +21,7 @@ from karvon.schemas import (
     OperationIn,
     OperationOut,
     ParkIn,
+    ReportOut,
     StockLotOut,
     TariffOut,
     UserOut,
@@ -218,6 +219,20 @@ def customs(operation_id: int, body: CustomsIn, db: DB) -> Operation:
 )
 def weigh(visit_id: int, body: WeighIn, db: DB):
     return services.weigh(db, visit_id, body.gross_kg, body.tare_kg)
+
+
+# --- reports -----------------------------------------------------------------
+
+
+@router.get("/reports", response_model=ReportOut, tags=["reports"], dependencies=[allow("reports")])
+def report(
+    db: DB,
+    from_: Annotated[date | None, Query(alias="from")] = None,
+    to: Annotated[date | None, Query(alias="to")] = None,
+) -> reports.Report:
+    """Throughput, dwell time and revenue. Without dates: the last 30 days (UTC)."""
+    start, end = reports.period(from_, to)
+    return reports.build(db, start, end)
 
 
 # --- reference data ----------------------------------------------------------
