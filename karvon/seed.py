@@ -216,7 +216,9 @@ def seed_demo_users(session: Session) -> None:
 
 def seed(session: Session, *, demo: bool = True) -> None:
     seed_reference_data(session)
-    if demo:
+    # Demo users (password = username) only go with demo trucks into an empty
+    # database. A real database upgraded from v0.1.0 never gets them.
+    if demo and session.scalar(select(Visit).limit(1)) is None:
         seed_demo_users(session)
         seed_demo_visits(session)
 

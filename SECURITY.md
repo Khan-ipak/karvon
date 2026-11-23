@@ -9,7 +9,8 @@ Karvon is in alpha. Security fixes go to the latest release and `main`.
 
 | Version | Supported |
 |---------|-----------|
-| 0.1.x   | ✅        |
+| 0.2.x   | ✅        |
+| 0.1.x   | ❌ (no login; upgrade to 0.2) |
 
 ## Reporting a vulnerability
 

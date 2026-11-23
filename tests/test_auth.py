@@ -214,3 +214,29 @@ def test_visit_page_says_when_role_has_no_actions(client):
     pw = _add_user(client, "broker", "customs")
     _as(client, "broker", pw)
     assert "No actions available right now." in client.get(f"/visits/{vid}").text
+
+
+def test_upgraded_database_gets_no_demo_users(tmp_path, caplog):
+    """A v0.1.0 database with real trucks must not get password = username accounts."""
+    from fastapi.testclient import TestClient
+
+    from karvon.config import Settings
+    from karvon.db import make_engine, make_sessionmaker
+    from karvon.main import create_app
+    from karvon.migrate import upgrade
+    from karvon.seed import seed_reference_data
+    from karvon.services import GateInData
+    from karvon.services import gate_in as service_gate_in
+
+    url = f"sqlite:///{tmp_path / 'old.db'}"
+    engine = make_engine(url)
+    upgrade(engine)
+    with make_sessionmaker(engine)() as s, s.begin():
+        seed_reference_data(s)
+        service_gate_in(s, GateInData("01R000RR", "Real Driver", "R1"))
+
+    with TestClient(create_app(Settings(database_url=url, seed_demo=True))) as c:
+        r = c.post("/login", data={"username": "admin", "password": "admin"})
+        assert "Wrong username or password" in r.text
+        assert "Demo users" not in c.get("/login").text
+    assert "No users yet" in caplog.text
