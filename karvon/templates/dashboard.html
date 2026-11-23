@@ -15,6 +15,7 @@
          aria-label="{{ t('dash.search') }}" autocomplete="off">
   <button type="submit">{{ t("dash.search_button") }}</button>
 </form>
+<p><a href="/api/v1/visits.csv">{{ t("dash.download_csv") }}</a></p>
 {% if visits %}
 <div class="overflow-auto">
 <table>

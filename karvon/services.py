@@ -6,8 +6,11 @@ Every function works inside the caller's session and only flushes; the caller co
 
 from __future__ import annotations
 
+import csv
+import io
 import math
 from dataclasses import dataclass
+from datetime import datetime, time, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 
 from sqlalchemy import func, select
@@ -376,6 +379,79 @@ def list_visits(
             Vehicle.plate_number.contains(plate, autoescape=True)
         )
     return list(session.scalars(stmt))
+
+
+CSV_COLUMNS = [
+    "id",
+    "plate",
+    "country",
+    "driver",
+    "status",
+    "slot",
+    "arrived_at",
+    "exited_at",
+    "total charged",
+    "total paid",
+]
+
+
+# Leading characters a spreadsheet would read as the start of a formula
+# (OWASP "CSV injection"). Gate staff type values like driver names by
+# hand, so exported cells starting with one of these get a leading single
+# quote, which keeps the value literal when the file is opened.
+_FORMULA_PREFIXES = ("=", "+", "-", "@", "\t", "\r")
+
+
+def _csv_safe(value: str) -> str:
+    if value.startswith(_FORMULA_PREFIXES):
+        return "'" + value
+    return value
+
+
+def export_visits_csv(
+    session: Session,
+    *,
+    arrived_from: datetime | None = None,
+    arrived_to: datetime | None = None,
+) -> str:
+    """One CSV row per visit, for managers and accountants working in Excel.
+
+    Filters are on `arrived_at`. SQLite stores datetimes as naive UTC, so
+    aware inputs are converted to naive UTC before comparing. A date-only
+    `arrived_to` (midnight) means the whole of that day, so it is treated
+    as an exclusive bound at the next midnight. The text starts with a
+    UTF-8 BOM so Excel reads Cyrillic names instead of mojibake.
+    """
+    stmt = select(Visit).order_by(Visit.id)
+    if arrived_from is not None:
+        stmt = stmt.where(Visit.arrived_at >= as_utc(arrived_from).replace(tzinfo=None))
+    if arrived_to is not None:
+        bound = as_utc(arrived_to).replace(tzinfo=None)
+        if bound.time() == time.min:
+            stmt = stmt.where(Visit.arrived_at < bound + timedelta(days=1))
+        else:
+            stmt = stmt.where(Visit.arrived_at <= bound)
+    out = io.StringIO()
+    writer = csv.writer(out)
+    writer.writerow(CSV_COLUMNS)
+    for visit in session.scalars(stmt):
+        charged = sum((c.amount for c in visit.charges), Decimal("0.00"))
+        paid = sum((c.amount for c in visit.charges if c.paid), Decimal("0.00"))
+        writer.writerow(
+            [
+                visit.id,
+                _csv_safe(visit.vehicle.plate_number),
+                _csv_safe(visit.vehicle.country or ""),
+                _csv_safe(visit.driver.full_name),
+                _csv_safe(visit.status.value),
+                _csv_safe(visit.slot.label if visit.slot else ""),
+                as_utc(visit.arrived_at).isoformat(),
+                as_utc(visit.exited_at).isoformat() if visit.exited_at else "",
+                f"{charged:.2f}",
+                f"{paid:.2f}",
+            ]
+        )
+    return "\ufeff" + out.getvalue()
 
 
 def dashboard_counts(session: Session) -> dict[str, int]:
