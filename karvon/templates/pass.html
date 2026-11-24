@@ -46,11 +46,11 @@
     <dt>{{ t("gate.country") }}</dt><dd>{{ visit.vehicle.country or "—" }}</dd>
     <dt>{{ t("visit.driver") }}</dt><dd>{{ visit.driver.full_name }} ({{ visit.driver.passport_number }})</dd>
     <dt>{{ t("visit.tir") }}</dt><dd>{{ visit.tir_carnet_number or "—" }}</dd>
-    <dt>{{ t("visit.arrived") }}</dt><dd>{{ visit.arrived_at.strftime("%Y-%m-%d %H:%M") }}</dd>
+    <dt>{{ t("visit.arrived") }}</dt><dd>{{ local(visit.arrived_at, "%Y-%m-%d %H:%M") }}</dd>
     {% if visit.exited_at %}
-    <dt>{{ t("status.exited") }}</dt><dd>{{ visit.exited_at.strftime("%Y-%m-%d %H:%M") }}</dd>
+    <dt>{{ t("status.exited") }}</dt><dd>{{ local(visit.exited_at, "%Y-%m-%d %H:%M") }}</dd>
     {% endif %}
-    <dt>{{ t("pass.issued") }}</dt><dd>{{ issued_at.strftime("%Y-%m-%d %H:%M") }} UTC</dd>
+    <dt>{{ t("pass.issued") }}</dt><dd>{{ local(issued_at, "%Y-%m-%d %H:%M") }} ({{ timezone }})</dd>
   </dl>
 
   <table>

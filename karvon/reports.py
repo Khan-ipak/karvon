@@ -1,6 +1,6 @@
 """Management reports for a date range: throughput, dwell time and revenue.
 
-Days are UTC days, like every time shown in the UI. Ranges are small (one
+Days are days in the terminal's time zone (KARVON_TIMEZONE). Ranges are small (one
 terminal, at most a year), so rows are loaded and summed in Python, which keeps
 the queries the same on SQLite and PostgreSQL.
 """
@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import statistics
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta, tzinfo
 from decimal import Decimal
 
 from sqlalchemy import select
@@ -97,13 +97,22 @@ def period(start: date | None, end: date | None, today: date | None = None) -> t
     return start, end
 
 
-def _naive(day: date) -> datetime:
-    # Stored datetimes are UTC; SQLite keeps them naive, so compare with naive UTC.
-    return datetime(day.year, day.month, day.day)
+def today(tz: tzinfo = UTC) -> date:
+    return utcnow().astimezone(tz).date()
 
 
-def build(session: Session, start: date, end: date) -> Report:
-    lo, hi = _naive(start), _naive(end + timedelta(days=1))
+def _bound(day: date, tz: tzinfo) -> datetime:
+    """Local midnight as naive UTC: stored datetimes are UTC, and SQLite keeps them naive."""
+    local = datetime(day.year, day.month, day.day, tzinfo=tz)
+    return local.astimezone(UTC).replace(tzinfo=None)
+
+
+def build(session: Session, start: date, end: date, tz: tzinfo = UTC) -> Report:
+    lo, hi = _bound(start, tz), _bound(end + timedelta(days=1), tz)
+
+    def local_day(value: datetime) -> date:
+        return as_utc(value).astimezone(tz).date()
+
     days = {
         start + timedelta(days=i): DayRow(start + timedelta(days=i))
         for i in range((end - start).days + 1)
@@ -113,14 +122,14 @@ def build(session: Session, start: date, end: date) -> Report:
         return (column >= lo) & (column < hi)
 
     for arrived in session.scalars(select(Visit.arrived_at).where(in_range(Visit.arrived_at))):
-        days[as_utc(arrived).date()].arrivals += 1
+        days[local_day(arrived)].arrivals += 1
 
     hours = []
     left = session.execute(
         select(Visit.arrived_at, Visit.exited_at).where(in_range(Visit.exited_at))
     )
     for arrived, exited in left:
-        days[as_utc(exited).date()].exits += 1
+        days[local_day(exited)].exits += 1
         hours.append((as_utc(exited) - as_utc(arrived)).total_seconds() / 3600)
     dwell = None
     if hours:
@@ -151,7 +160,7 @@ def build(session: Session, start: date, end: date) -> Report:
         row.amount += charge.amount
         if charge.paid:
             row.paid += charge.amount
-        days[as_utc(charge.created_at).date()].revenue += charge.amount
+        days[local_day(charge.created_at)].revenue += charge.amount
 
     day_rows = list(days.values())
     revenue_rows = sorted(revenue.values(), key=lambda r: r.amount, reverse=True)

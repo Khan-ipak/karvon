@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
+from zoneinfo import ZoneInfo
 
 
 def _bool(value: str | None, default: bool) -> bool:
@@ -21,6 +22,9 @@ class Settings:
     default_language: str = field(
         default_factory=lambda: os.environ.get("KARVON_DEFAULT_LANGUAGE", "en")
     )
+    # Terminal's local time zone (IANA name, e.g. Asia/Tashkent). Times are stored
+    # in UTC and shown, and grouped into days, in this zone.
+    timezone: str = field(default_factory=lambda: os.environ.get("KARVON_TIMEZONE", "UTC"))
     currency: str = field(default_factory=lambda: os.environ.get("KARVON_CURRENCY", "USD"))
     terminal_name: str = field(
         default_factory=lambda: os.environ.get("KARVON_TERMINAL_NAME", "Demo Border Terminal")
@@ -36,3 +40,7 @@ class Settings:
     admin_password: str | None = field(
         default_factory=lambda: os.environ.get("KARVON_ADMIN_PASSWORD") or None, repr=False
     )
+
+    @property
+    def tz(self) -> ZoneInfo:
+        return ZoneInfo(self.timezone)

@@ -8,7 +8,7 @@
   <tbody>
   {% for lot in lots %}
   <tr><td>#{{ lot.id }}</td><td>{{ lot.owner }}</td><td>{{ lot.description }}</td>
-      <td>{{ lot.quantity_kg }}</td><td>{{ lot.created_at.strftime("%Y-%m-%d") }}</td></tr>
+      <td>{{ lot.quantity_kg }}</td><td>{{ local(lot.created_at, "%Y-%m-%d") }}</td></tr>
   {% endfor %}
   </tbody>
 </table>

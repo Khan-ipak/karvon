@@ -25,6 +25,7 @@ dependencies = [
   "alembic>=1.13",
   "jinja2>=3.1",
   "python-multipart>=0.0.9",
+  "tzdata>=2024.1",  # time zone database where the OS has none (slim Docker images, Windows)
 ]
 
 [project.optional-dependencies]

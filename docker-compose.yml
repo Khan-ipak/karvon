@@ -26,6 +26,7 @@ services:
       KARVON_TERMINAL_NAME: Demo Border Terminal
       KARVON_DEFAULT_LANGUAGE: en
       KARVON_CURRENCY: USD
+      KARVON_TIMEZONE: Asia/Tashkent
     ports:
       - "8000:8000"
 

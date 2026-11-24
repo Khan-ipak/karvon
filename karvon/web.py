@@ -26,6 +26,7 @@ from karvon.models import (
     Visit,
     VisitStatus,
     YardSlot,
+    as_utc,
     utcnow,
 )
 
@@ -73,6 +74,10 @@ def render(request: Request, name: str, **context) -> HTMLResponse:
             "languages": languages(),
             "terminal_name": settings.terminal_name,
             "currency": settings.currency,
+            "timezone": settings.timezone,
+            "local": lambda value, fmt="%Y-%m-%d %H:%M": (
+                as_utc(value).astimezone(settings.tz).strftime(fmt)
+            ),
             "error": request.query_params.get("error"),
             **context,
         },
@@ -248,16 +253,17 @@ def stock_page(request: Request, db: DB):
 @pages.get("/reports", response_class=HTMLResponse)
 def reports_page(request: Request, user: CurrentUser, db: DB, start: str = "", end: str = ""):
     t = translator(_lang(request))
+    tz = request.app.state.settings.tz
     if not auth.can(user, "reports"):
         return back_to("/", t("auth.forbidden"))
     error = None
     try:
-        first, last = reports.period(_date(start), _date(end))
+        first, last = reports.period(_date(start), _date(end), reports.today(tz))
     except services.DomainError as e:
         error = e.message
-        first, last = reports.period(None, None)
+        first, last = reports.period(None, None, reports.today(tz))
     return render(
-        request, "reports.html", report=reports.build(db, first, last), error=error or None
+        request, "reports.html", report=reports.build(db, first, last, tz), error=error or None
     )
 
 

@@ -145,6 +145,7 @@ python -m karvon.users create admin --role admin
 | `KARVON_TERMINAL_NAME`    | `Demo Border Terminal`   | Название в интерфейсе            |
 | `KARVON_DEFAULT_LANGUAGE` | `en`                     | `en`, `ru`, `uz`, …              |
 | `KARVON_CURRENCY`         | `USD`                    | Валюта в интерфейсе              |
+| `KARVON_TIMEZONE`         | `UTC`                    | Часовой пояс терминала (имя IANA, например `Asia/Tashkent`). В нём показывается время и считаются дни в отчётах |
 
 ## План
 

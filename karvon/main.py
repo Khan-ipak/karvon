@@ -38,6 +38,12 @@ def bootstrap_admin(session, settings: Settings) -> None:
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or Settings()
+    try:
+        _ = settings.tz
+    except (ValueError, KeyError) as exc:  # ZoneInfoNotFoundError is a KeyError
+        raise SystemExit(
+            f"KARVON_TIMEZONE={settings.timezone!r} is not a time zone, e.g. Asia/Tashkent"
+        ) from exc
     engine = make_engine(settings.database_url)
     session_factory = make_sessionmaker(engine)
 
