@@ -4,6 +4,8 @@ All notable changes to Karvon. Dates are UTC.
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-24
+
 ### Added
 
 - `KARVON_TIMEZONE`: the terminal's time zone. The UI shows local times and
@@ -62,6 +64,7 @@ First public release: gate in/out, yard, direct transfer and warehouse
 operations, stock, customs flag, weighbridge, tariffs and billing, EN/RU/UZ UI,
 REST API.
 
-[Unreleased]: https://github.com/Khan-ipak/karvon/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/Khan-ipak/karvon/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/Khan-ipak/karvon/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Khan-ipak/karvon/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Khan-ipak/karvon/releases/tag/v0.1.0
