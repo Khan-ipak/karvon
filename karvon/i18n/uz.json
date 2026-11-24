@@ -139,7 +139,6 @@
   "reports.from": "Dan",
   "reports.to": "Gacha",
   "reports.show": "Koʻrsatish",
-  "reports.utc_note": "sana va vaqt UTC boʻyicha",
   "reports.arrivals": "Kirgan",
   "reports.exits": "Chiqqan",
   "reports.avg_dwell": "Terminalda oʻrtacha vaqt, soat",
@@ -165,5 +164,6 @@
   "yard.move_from": "koʻchirish:",
   "yard.nothing_to_park": "Joy kutayotgan yoki turgan mashina yoʻq.",
   "demo.banner": "Ochiq demo. Har kim kira oladi, maʼlumotlar muntazam tozalanadi. Iltimos, haqiqiy shaxsiy maʼlumotlarni kiritmang.",
-  "demo.users_locked": "Ochiq demoda foydalanuvchilar va parollarni oʻzgartirib boʻlmaydi."
+  "demo.users_locked": "Ochiq demoda foydalanuvchilar va parollarni oʻzgartirib boʻlmaydi.",
+  "reports.timezone": "vaqt mintaqasi"
 }

@@ -2,6 +2,21 @@
 
 All notable changes to Karvon. Dates are UTC.
 
+## [Unreleased]
+
+### Added
+
+- `KARVON_TIMEZONE`: the terminal's time zone. The UI shows local times and
+  reports count days in it; the API and CSV stay in UTC.
+- Public demo mode (`KARVON_PUBLIC_DEMO`) and a Render blueprint with a
+  "Deploy to Render" button.
+- Russian README.
+
+### Fixed
+
+- Plain `docker run` without PostgreSQL failed to write the SQLite file.
+- Login cookie is marked `Secure` behind an HTTPS reverse proxy.
+
 ## [0.2.0] - 2026-11-23
 
 ### Added
@@ -45,5 +60,6 @@ First public release: gate in/out, yard, direct transfer and warehouse
 operations, stock, customs flag, weighbridge, tariffs and billing, EN/RU/UZ UI,
 REST API.
 
+[Unreleased]: https://github.com/Khan-ipak/karvon/compare/v0.2.0...HEAD
 [0.2.0]: https://github.com/Khan-ipak/karvon/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Khan-ipak/karvon/releases/tag/v0.1.0

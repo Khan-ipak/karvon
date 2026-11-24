@@ -226,13 +226,18 @@ def weigh(visit_id: int, body: WeighIn, db: DB):
 
 @router.get("/reports", response_model=ReportOut, tags=["reports"], dependencies=[allow("reports")])
 def report(
+    request: Request,
     db: DB,
     from_: Annotated[date | None, Query(alias="from")] = None,
     to: Annotated[date | None, Query(alias="to")] = None,
 ) -> reports.Report:
-    """Throughput, dwell time and revenue. Without dates: the last 30 days (UTC)."""
-    start, end = reports.period(from_, to)
-    return reports.build(db, start, end)
+    """Throughput, dwell time and revenue, by day in the terminal's time zone.
+
+    Without dates: the last 30 days.
+    """
+    tz = request.app.state.settings.tz
+    start, end = reports.period(from_, to, reports.today(tz))
+    return reports.build(db, start, end, tz)
 
 
 # --- reference data ----------------------------------------------------------

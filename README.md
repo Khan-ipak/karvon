@@ -149,6 +149,7 @@ lifecycle are in [`docs/architecture.md`](docs/architecture.md).
 | `KARVON_TERMINAL_NAME`    | `Demo Border Terminal`   | Shown in the UI                  |
 | `KARVON_DEFAULT_LANGUAGE` | `en`                     | `en`, `ru`, `uz`, …              |
 | `KARVON_CURRENCY`         | `USD`                    | Display currency                 |
+| `KARVON_TIMEZONE`         | `UTC`                    | Terminal time zone (IANA name, e.g. `Asia/Tashkent`). Times are shown and reports are grouped by day in it |
 
 ## Roadmap
 

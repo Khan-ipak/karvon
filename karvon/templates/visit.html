@@ -14,7 +14,7 @@
 <div class="grid">
   <article>
     <dl>
-      <dt>{{ t("visit.arrived") }}</dt><dd>{{ visit.arrived_at.strftime("%Y-%m-%d %H:%M") }} ({{ parking_days }} {{ t("visit.days") }})</dd>
+      <dt>{{ t("visit.arrived") }}</dt><dd>{{ local(visit.arrived_at, "%Y-%m-%d %H:%M") }} ({{ parking_days }} {{ t("visit.days") }})</dd>
       <dt>{{ t("visit.tir") }}</dt><dd>{{ visit.tir_carnet_number or "—" }}</dd>
       <dt>{{ t("visit.cmr") }}</dt><dd>{{ visit.cmr_number or "—" }}</dd>
       <dt>{{ t("visit.cargo") }}</dt><dd>{{ visit.cargo_description or "—" }}</dd>
@@ -135,7 +135,7 @@
   <tbody>
   {% for w in visit.weigh_tickets %}
   <tr><td>{{ w.id }}</td><td>{{ w.gross_kg }}</td><td>{{ w.tare_kg }}</td><td><strong>{{ w.net_kg }}</strong></td>
-      <td>{{ w.created_at.strftime("%Y-%m-%d %H:%M") }}</td></tr>
+      <td>{{ local(w.created_at, "%Y-%m-%d %H:%M") }}</td></tr>
   {% endfor %}
   </tbody>
 </table>
@@ -177,7 +177,7 @@
   <tbody>
   {% for e in visit.audit_events %}
   {% set label = t("audit." ~ e.action) %}
-  <tr><td>{{ e.at.strftime("%Y-%m-%d %H:%M") }}</td><td>{{ e.username }}</td>
+  <tr><td>{{ local(e.at, "%Y-%m-%d %H:%M") }}</td><td>{{ e.username }}</td>
       <td>{{ e.action if label.startswith("audit.") else label }}</td><td>{{ e.details or "" }}</td></tr>
   {% endfor %}
   </tbody>

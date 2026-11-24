@@ -17,7 +17,7 @@
     <button type="submit">{{ t("reports.show") }}</button>
   </fieldset>
 </form>
-<p><small>{{ report.start.isoformat() }} — {{ report.end.isoformat() }} · {{ t("reports.utc_note") }} ·
+<p><small>{{ report.start.isoformat() }} — {{ report.end.isoformat() }} · {{ t("reports.timezone") }}: {{ timezone }} ·
   <a href="/api/v1/reports?from={{ report.start.isoformat() }}&to={{ report.end.isoformat() }}">JSON</a></small></p>
 
 <section class="stats">

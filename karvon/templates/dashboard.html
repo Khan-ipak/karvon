@@ -34,7 +34,7 @@
       <td>{{ v.driver.full_name }}</td>
       <td><span class="badge {{ v.status.value }}">{{ t("status." ~ v.status.value) }}</span></td>
       <td>{{ v.slot.label if v.slot else "—" }}</td>
-      <td>{{ v.arrived_at.strftime("%Y-%m-%d %H:%M") }}</td>
+      <td>{{ local(v.arrived_at, "%Y-%m-%d %H:%M") }}</td>
       <td>{{ v.total_due }} {{ currency }}</td>
     </tr>
   {% endfor %}

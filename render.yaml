@@ -16,3 +16,5 @@ services:
         value: "1"
       - key: KARVON_PUBLIC_DEMO
         value: "1"
+      - key: KARVON_TIMEZONE
+        value: Asia/Tashkent
