@@ -179,6 +179,31 @@ def parking_days(visit: Visit) -> int:
     return max(1, math.ceil(seconds / 86400))
 
 
+LONG_STAY = timedelta(hours=48)
+
+
+def time_on_site(visit: Visit) -> timedelta:
+    """Exact time between arrival and exit (or now, while the vehicle is still on site)."""
+    end = as_utc(visit.exited_at) if visit.exited_at else utcnow()
+    return max(timedelta(0), end - as_utc(visit.arrived_at))
+
+
+def format_duration(
+    delta: timedelta, day: str = "{n}d", hour: str = "{n}h", minute: str = "{n}m"
+) -> str:
+    """Short label such as `2d 3h`, `5h 10m` or `45m`; pass translated unit patterns."""
+    minutes = int(delta.total_seconds() // 60)
+    days, rest = divmod(minutes, 1440)
+    hours, mins = divmod(rest, 60)
+    if days:
+        parts = [day.format(n=days), hour.format(n=hours)]
+    elif hours:
+        parts = [hour.format(n=hours), minute.format(n=mins)]
+    else:
+        parts = [minute.format(n=mins)]
+    return " ".join(parts)
+
+
 # --- yard --------------------------------------------------------------------
 
 
