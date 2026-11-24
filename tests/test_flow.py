@@ -173,3 +173,43 @@ def test_search_by_plate(client):
     assert plates(plate="_") == ["01A_777"]  # underscore is literal, not a wildcard
     assert plates(plate="zzz") == []
     assert len(plates()) == 3
+
+
+def test_time_on_site_and_label():
+    from datetime import timedelta
+
+    from karvon.models import Visit, utcnow
+    from karvon.services import format_duration, time_on_site
+
+    now = utcnow()
+    visit = Visit(arrived_at=now - timedelta(days=2, hours=3, minutes=5))
+    assert timedelta(days=2, hours=3) <= time_on_site(visit) < timedelta(days=2, hours=3, minutes=6)
+    visit.exited_at = visit.arrived_at + timedelta(minutes=45)
+    assert time_on_site(visit) == timedelta(minutes=45)
+    assert format_duration(timedelta(days=2, hours=3, minutes=5)) == "2d 3h"
+    assert format_duration(timedelta(hours=5, minutes=10)) == "5h 10m"
+    assert format_duration(timedelta(minutes=45)) == "45m"
+    assert format_duration(timedelta(0)) == "0m"
+    assert format_duration(timedelta(hours=26), "{n} д", "{n} ч") == "1 д 2 ч"
+
+
+def test_dashboard_shows_time_on_site(client):
+    from datetime import timedelta
+
+    from sqlalchemy import update
+
+    from karvon.models import Visit, utcnow
+
+    old = gate_in(client, plate="01A111AA", passport="P1")["id"]
+    gate_in(client, plate="01A222BB", passport="P2")
+    with client.app.state.sessionmaker() as s, s.begin():
+        s.execute(
+            update(Visit)
+            .where(Visit.id == old)
+            .values(arrived_at=utcnow() - timedelta(days=3, hours=4, minutes=1))
+        )
+
+    page = client.get("/").text
+    assert '<td class="long-stay">3d 4h</td>' in page
+    assert "<td>0m</td>" in page
+    assert "3 д 4 ч" in client.get("/?lang=ru").text

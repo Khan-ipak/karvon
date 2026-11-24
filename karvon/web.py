@@ -62,6 +62,7 @@ def _lang(request: Request) -> str:
 def render(request: Request, name: str, **context) -> HTMLResponse:
     settings = request.app.state.settings
     user = getattr(request.state, "user", None)
+    t = translator(_lang(request))
     return templates.TemplateResponse(
         request,
         name,
@@ -69,7 +70,7 @@ def render(request: Request, name: str, **context) -> HTMLResponse:
             "user": user,
             "public_demo": settings.public_demo,
             "can": lambda permission: auth.can(user, permission),
-            "t": translator(_lang(request)),
+            "t": t,
             "lang": _lang(request),
             "languages": languages(),
             "terminal_name": settings.terminal_name,
@@ -78,10 +79,20 @@ def render(request: Request, name: str, **context) -> HTMLResponse:
             "local": lambda value, fmt="%Y-%m-%d %H:%M": (
                 as_utc(value).astimezone(settings.tz).strftime(fmt)
             ),
+            "on_site": lambda visit: _on_site(visit, t),
             "error": request.query_params.get("error"),
             **context,
         },
     )
+
+
+def _on_site(visit, t) -> tuple[str, bool]:
+    """Time on site as a translated label, and whether it is a long stay."""
+    delta = services.time_on_site(visit)
+    label = services.format_duration(
+        delta, t("duration.days"), t("duration.hours"), t("duration.minutes")
+    )
+    return label, delta >= services.LONG_STAY
 
 
 def back_to(url: str, error: str | None = None) -> RedirectResponse:

@@ -11,6 +11,8 @@ All notable changes to Karvon. Dates are UTC.
 - Public demo mode (`KARVON_PUBLIC_DEMO`) and a Render blueprint with a
   "Deploy to Render" button.
 - Russian README.
+- Dashboard column "On site": how long each truck has been at the terminal,
+  highlighted after 48 hours (#19, based on work by @RiccardoBifulco).
 
 ### Fixed
 
