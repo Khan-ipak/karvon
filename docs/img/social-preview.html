@@ -1,0 +1,45 @@
+<!doctype html>
+<!-- Social preview for GitHub (Settings → General → Social preview). Regenerate:
+  chrome --headless=new --window-size=1280,640 --screenshot=social-preview.png social-preview.html -->
+<html><head><meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { width: 1280px; height: 640px; overflow: hidden; font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+         background: radial-gradient(circle at 15% 20%, #1e3a8a 0%, #0b1020 55%); color: #e5e7eb; position: relative; }
+  .left { position: absolute; left: 72px; top: 70px; width: 560px; }
+  .brand { display: flex; align-items: center; gap: 18px; }
+  .mark { width: 64px; height: 64px; border-radius: 16px; background: #2563eb; display: grid; place-items: center; }
+  .mark svg { width: 40px; height: 40px; }
+  h1 { font-size: 76px; font-weight: 800; letter-spacing: -1.5px; color: #fff; }
+  .tag { margin-top: 26px; font-size: 34px; line-height: 1.25; font-weight: 650; color: #fff; }
+  .sub { margin-top: 14px; font-size: 22px; line-height: 1.4; color: #9ca3af; }
+  .chips { margin-top: 34px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip { padding: 8px 16px; border-radius: 999px; font-size: 19px; font-weight: 600; color: #fff; }
+  .c1 { background: #2563eb; } .c2 { background: #d97706; } .c3 { background: #dc2626; } .c4 { background: #16a34a; }
+  .c5 { background: #475569; }
+  .foot { position: absolute; left: 72px; bottom: 54px; font-size: 20px; color: #9ca3af; }
+  .foot b { color: #e5e7eb; font-weight: 600; }
+  .shot { position: absolute; right: -160px; top: 92px; width: 760px; border-radius: 14px; overflow: hidden;
+          box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.08); transform: rotate(-3deg); }
+  .shot img { display: block; width: 100%; }
+</style></head>
+<body>
+  <div class="left">
+    <div class="brand">
+      <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="1" y="6" width="14" height="10" rx="1"/><path d="M15 9h4l3 3v4h-7z"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg></div>
+      <h1>Karvon</h1>
+    </div>
+    <p class="tag">Open-source terminal operating system for land freight terminals</p>
+    <p class="sub">Dry ports, border truck terminals, TIR parks and cross&#8209;docks. From gate-in to gate-out.</p>
+    <div class="chips">
+      <span class="chip c1">Gate &amp; yard map</span>
+      <span class="chip c2">Cross-dock &amp; warehouse</span>
+      <span class="chip c3">Customs</span>
+      <span class="chip c4">Weighbridge &amp; billing</span>
+      <span class="chip c5">Roles &amp; reports</span>
+    </div>
+  </div>
+  <div class="shot"><img src="yard.png"></div>
+  <div class="foot"><b>github.com/Khan-ipak/karvon</b> &nbsp;·&nbsp; Python · FastAPI · MIT &nbsp;·&nbsp; EN · RU · UZ</div>
+</body></html>
