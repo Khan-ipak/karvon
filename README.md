@@ -8,6 +8,10 @@
 
 **English** · [Русский](README.ru.md)
 
+**[▶ Try the live demo](https://karvon-demo.onrender.com)**: log in as `admin` / `admin`, or as
+`customs` / `customs` to see what a customs broker sees. The first visit can take up to a minute
+while the free server wakes up; the data resets regularly.
+
 **Open-source Terminal Operating System for land freight terminals.**
 Built for dry ports, border truck terminals, TIR parks and cross-dock warehouses.
 
