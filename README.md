@@ -6,6 +6,8 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue)](pyproject.toml)
 [![Discussions](https://img.shields.io/github/discussions/Khan-ipak/karvon)](https://github.com/Khan-ipak/karvon/discussions)
 
+**English** · [Русский](README.ru.md)
+
 **Open-source Terminal Operating System for land freight terminals.**
 Built for dry ports, border truck terminals, TIR parks and cross-dock warehouses.
 
