@@ -163,5 +163,7 @@
   "yard.pick_hint": "mashinani qoʻyish uchun boʻsh joyni bosing",
   "yard.park_into": "Joyga qoʻyish",
   "yard.move_from": "koʻchirish:",
-  "yard.nothing_to_park": "Joy kutayotgan yoki turgan mashina yoʻq."
+  "yard.nothing_to_park": "Joy kutayotgan yoki turgan mashina yoʻq.",
+  "demo.banner": "Ochiq demo. Har kim kira oladi, maʼlumotlar muntazam tozalanadi. Iltimos, haqiqiy shaxsiy maʼlumotlarni kiritmang.",
+  "demo.users_locked": "Ochiq demoda foydalanuvchilar va parollarni oʻzgartirib boʻlmaydi."
 }

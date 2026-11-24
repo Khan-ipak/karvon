@@ -1,0 +1,18 @@
+# Render Blueprint for a public Karvon demo: https://render.com/docs/blueprint-spec
+# SQLite lives on the instance's temporary disk, so every restart (the free plan
+# sleeps after 15 minutes without visitors) starts again from fresh demo data.
+services:
+  - type: web
+    name: karvon-demo
+    runtime: docker
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      - key: PORT
+        value: "8000"
+      - key: KARVON_DATABASE_URL
+        value: sqlite:////tmp/karvon-demo.db
+      - key: KARVON_SEED_DEMO
+        value: "1"
+      - key: KARVON_PUBLIC_DEMO
+        value: "1"
