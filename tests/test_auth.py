@@ -240,3 +240,25 @@ def test_upgraded_database_gets_no_demo_users(tmp_path, caplog):
         assert "Wrong username or password" in r.text
         assert "Demo users" not in c.get("/login").text
     assert "No users yet" in caplog.text
+
+
+def test_public_demo_locks_users(tmp_path):
+    from fastapi.testclient import TestClient
+
+    from karvon.config import Settings
+    from karvon.main import create_app
+
+    settings = Settings(database_url=f"sqlite:///{tmp_path / 'pub.db'}", public_demo=True)
+    with TestClient(create_app(settings)) as c:
+        login(c, "admin", "admin")
+        assert "Public demo" in c.get("/").text
+        r = c.post("/users/1/password", data={"password": "hijacked-1"}, follow_redirects=False)
+        assert "error=" in r.headers["location"]
+        r = c.post(
+            "/users",
+            data={"username": "x", "password": "12345678", "role": "admin"},
+            follow_redirects=False,
+        )
+        assert "error=" in r.headers["location"]
+        c.post("/logout")
+        login(c, "admin", "admin")  # still the demo password

@@ -25,6 +25,10 @@ class Settings:
     terminal_name: str = field(
         default_factory=lambda: os.environ.get("KARVON_TERMINAL_NAME", "Demo Border Terminal")
     )
+    # Public demo: shows a banner and blocks changes to users and passwords.
+    public_demo: bool = field(
+        default_factory=lambda: _bool(os.environ.get("KARVON_PUBLIC_DEMO"), False)
+    )
     # Creates this admin on startup if no user has that name yet.
     admin_username: str = field(
         default_factory=lambda: os.environ.get("KARVON_ADMIN_USERNAME", "admin")

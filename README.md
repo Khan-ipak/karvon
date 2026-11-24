@@ -71,6 +71,14 @@ created on first start, with one demo user per role. The password is the
 username: log in as `admin` / `admin`, or as `customs` / `customs` to see what a
 customs broker sees.
 
+Your own public demo on [Render](https://render.com)'s free plan, in a few clicks:
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Khan-ipak/karvon)
+
+It uses [`render.yaml`](render.yaml): SQLite on a temporary disk, so the demo
+starts from fresh data after every restart, and `KARVON_PUBLIC_DEMO=1`, so
+visitors can't change the shared demo logins.
+
 Without Docker (uses SQLite):
 
 ```bash
@@ -134,6 +142,7 @@ lifecycle are in [`docs/architecture.md`](docs/architecture.md).
 |---------------------------|--------------------------|----------------------------------|
 | `KARVON_DATABASE_URL`     | `sqlite:///./karvon.db`  | Any SQLAlchemy URL (PostgreSQL recommended) |
 | `KARVON_SEED_DEMO`        | `1`                      | Create demo trucks and demo users (password = username) on an empty database. **Set to `0` in production** |
+| `KARVON_PUBLIC_DEMO`      | `0`                      | Public demo: shows a banner and blocks changes to users and passwords |
 | `KARVON_ADMIN_PASSWORD`   | —                        | On startup, create user `KARVON_ADMIN_USERNAME` (default `admin`) with this password if it doesn't exist |
 | `KARVON_TERMINAL_NAME`    | `Demo Border Terminal`   | Shown in the UI                  |
 | `KARVON_DEFAULT_LANGUAGE` | `en`                     | `en`, `ru`, `uz`, …              |

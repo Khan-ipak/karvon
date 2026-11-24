@@ -66,6 +66,7 @@ def render(request: Request, name: str, **context) -> HTMLResponse:
         name,
         {
             "user": user,
+            "public_demo": settings.public_demo,
             "can": lambda permission: auth.can(user, permission),
             "t": translator(_lang(request)),
             "lang": _lang(request),
@@ -88,6 +89,12 @@ def _check(request: Request, user: User, permission: str) -> None:
     """Like auth.check, but with a message in the user's language."""
     if not auth.can(user, permission):
         raise services.DomainError("forbidden", translator(_lang(request))("auth.forbidden"))
+
+
+def _not_in_demo(request: Request) -> None:
+    """In the public demo everyone shares the demo logins, so nobody may change them."""
+    if request.app.state.settings.public_demo:
+        raise services.DomainError("demo", translator(_lang(request))("demo.users_locked"))
 
 
 def _decimal(value: str) -> Decimal:
@@ -441,6 +448,7 @@ def users_create(
 ):
     try:
         _check(request, user, "manage_users")
+        _not_in_demo(request)
         auth.create_user(db, username, password, Role(role), _opt(full_name))
     except (services.DomainError, ValueError) as e:
         db.rollback()
@@ -459,6 +467,7 @@ def users_action(
 ):
     try:
         _check(request, user, "manage_users")
+        _not_in_demo(request)
         target = services.get(db, User, user_id)
         match action:
             case "deactivate":

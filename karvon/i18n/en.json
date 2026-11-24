@@ -163,5 +163,7 @@
   "yard.pick_hint": "click a free slot to park a vehicle",
   "yard.park_into": "Park in slot",
   "yard.move_from": "move from",
-  "yard.nothing_to_park": "No vehicle is waiting or parked."
+  "yard.nothing_to_park": "No vehicle is waiting or parked.",
+  "demo.banner": "Public demo. Anyone can log in and the data is reset regularly. Please don't enter real personal data.",
+  "demo.users_locked": "Users and passwords can't be changed in the public demo."
 }
