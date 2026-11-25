@@ -73,7 +73,12 @@ def seed_demo_visits(session: Session) -> None:
             driver_name="Ahmad Noori",
             driver_passport="P0987654",
             tir_carnet_number="XK-55102231",
+            cmr_number="AF-0431726",
             cargo_description="Dried fruit, 18 t",
+            sender="Mazar Dry Fruits Co.\nMazar-i-Sharif, Afghanistan",
+            consignee="Termez Fruit Trade LLC\nTermez, Uzbekistan",
+            loading_place="Mazar-i-Sharif, AF",
+            delivery_place="Termez, UZ",
         ),
     )
     afghan.arrived_at = utcnow() - timedelta(days=2, hours=3)
@@ -99,7 +104,12 @@ def seed_demo_visits(session: Session) -> None:
             driver_name="Imran Shah",
             driver_passport="PK7712093",
             tir_carnet_number="XK-55109987",
+            cmr_number="PK-1187245",
             cargo_description="Textile, 12 t",
+            sender="Lahore Textile Mills\nLahore, Pakistan",
+            consignee="Tashkent Textile House\nTashkent, Uzbekistan",
+            loading_place="Lahore, PK",
+            delivery_place="Tashkent, UZ",
         ),
     )
     receiver = services.gate_in(

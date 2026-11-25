@@ -4,6 +4,21 @@ All notable changes to Karvon. Dates are UTC.
 
 ## [Unreleased]
 
+### Added
+
+- **CMR consignment note and invoice as PDF** (#12). The CMR has the standard
+  boxes 1–25 in English and Russian and is filled from the visit, including the
+  gross weight from the weigh ticket; the invoice is in the user's language.
+  Buttons on the visit page; `GET /api/v1/visits/{id}/cmr.pdf` and `/invoice.pdf`.
+- Shipping details on visits: sender, consignee, places of loading and delivery.
+  Enter them at the gate, on the visit page or with `PATCH /api/v1/visits/{id}/documents`.
+- `KARVON_TERMINAL_ADDRESS`, printed on invoices.
+
+### Upgrading
+
+A migration adds four nullable columns to `visits`; it runs on startup.
+New dependency: `fpdf2` (pure Python).
+
 ## [0.2.1] - 2026-11-24
 
 ### Added

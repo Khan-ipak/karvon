@@ -9,12 +9,12 @@ from typing import Annotated
 from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, Form, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from karvon import auth, reports, services
+from karvon import auth, documents, reports, services
 from karvon.db import get_session
 from karvon.i18n import languages, translator
 from karvon.models import (
@@ -158,6 +158,10 @@ def gate_submit(
     tir_carnet_number: Annotated[str | None, Form()] = None,
     cmr_number: Annotated[str | None, Form()] = None,
     cargo_description: Annotated[str | None, Form()] = None,
+    sender: Annotated[str | None, Form()] = None,
+    consignee: Annotated[str | None, Form()] = None,
+    loading_place: Annotated[str | None, Form()] = None,
+    delivery_place: Annotated[str | None, Form()] = None,
 ):
     data = services.GateInData(
         plate_number=plate_number,
@@ -169,6 +173,10 @@ def gate_submit(
         tir_carnet_number=_opt(tir_carnet_number),
         cmr_number=_opt(cmr_number),
         cargo_description=_opt(cargo_description),
+        sender=_opt(sender),
+        consignee=_opt(consignee),
+        loading_place=_opt(loading_place),
+        delivery_place=_opt(delivery_place),
     )
     try:
         _check(request, user, "gate")
@@ -208,6 +216,39 @@ def exit_pass(request: Request, visit_id: int, db: DB):
         visit=visit,
         total_paid=sum((c.amount for c in visit.charges if c.paid), Decimal("0.00")),
         issued_at=utcnow(),
+    )
+
+
+def pdf_response(content: bytes, filename: str) -> Response:
+    """Shown in the browser's PDF viewer, saved under a meaningful name."""
+    return Response(
+        content,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'inline; filename="{filename}"'},
+    )
+
+
+def pdf_name(visit: Visit, kind: str) -> str:
+    plate = "".join(c for c in visit.vehicle.plate_number if c.isalnum() or c == "-")
+    return f"{kind}-{visit.id}-{plate}.pdf"
+
+
+@pages.get("/visits/{visit_id}/cmr.pdf")
+def cmr_document(request: Request, visit_id: int, db: DB):
+    visit = services.get(db, Visit, visit_id)
+    return pdf_response(
+        documents.cmr_pdf(visit, request.app.state.settings), pdf_name(visit, "cmr")
+    )
+
+
+@pages.get("/visits/{visit_id}/invoice.pdf")
+def invoice_document(request: Request, visit_id: int, db: DB):
+    visit = services.get(db, Visit, visit_id)
+    t = translator(_lang(request))
+    if not visit.charges:
+        return back_to(f"/visits/{visit_id}", t("doc.no_charges"))
+    return pdf_response(
+        documents.invoice_pdf(visit, request.app.state.settings, t), pdf_name(visit, "invoice")
     )
 
 
@@ -306,6 +347,7 @@ VISIT_ACTIONS = {
     "request-exit": "gate",
     "pay": "pay",
     "gate-out": "gate",
+    "documents": "gate",
 }
 
 OPERATION_ACTIONS = {
@@ -332,6 +374,13 @@ def visit_action(
     target_visit_id: Annotated[str | None, Form()] = None,
     stock_lot_id: Annotated[str | None, Form()] = None,
     notes: Annotated[str | None, Form()] = None,
+    cmr_number: Annotated[str | None, Form()] = None,
+    tir_carnet_number: Annotated[str | None, Form()] = None,
+    cargo_description: Annotated[str | None, Form()] = None,
+    sender: Annotated[str | None, Form()] = None,
+    consignee: Annotated[str | None, Form()] = None,
+    loading_place: Annotated[str | None, Form()] = None,
+    delivery_place: Annotated[str | None, Form()] = None,
 ):
     url = f"/visits/{visit_id}"
     permission = VISIT_ACTIONS.get(action)
@@ -363,6 +412,20 @@ def visit_action(
                 services.pay_visit(db, visit_id)
             case "gate-out":
                 services.gate_out(db, visit_id)
+            case "documents":
+                services.update_documents(
+                    db,
+                    visit_id,
+                    {
+                        "cmr_number": cmr_number,
+                        "tir_carnet_number": tir_carnet_number,
+                        "cargo_description": cargo_description,
+                        "sender": sender,
+                        "consignee": consignee,
+                        "loading_place": loading_place,
+                        "delivery_place": delivery_place,
+                    },
+                )
     except (services.DomainError, ValueError) as e:
         db.rollback()
         return back_to(url, getattr(e, "message", str(e)))

@@ -10,12 +10,14 @@ from fastapi.responses import Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from karvon import auth, reports, services
+from karvon import auth, documents, reports, services
 from karvon.db import get_session
+from karvon.i18n import languages, translator
 from karvon.models import AuditEvent, Operation, StockLot, Tariff, User, Visit, YardZone
 from karvon.schemas import (
     AuditEventOut,
     CustomsIn,
+    DocumentsIn,
     ErrorOut,
     GateIn,
     OperationIn,
@@ -111,6 +113,49 @@ def get_visit(visit_id: int, db: DB) -> Visit:
 def visit_history(visit_id: int, db: DB) -> list[AuditEvent]:
     """Who did what with this visit, oldest first."""
     return services.get(db, Visit, visit_id).audit_events
+
+
+@router.patch(
+    "/visits/{visit_id}/documents",
+    response_model=VisitDetailOut,
+    tags=["documents"],
+    dependencies=[allow("gate")],
+)
+def update_documents(visit_id: int, body: DocumentsIn, db: DB) -> Visit:
+    """Fill in shipping details for the CMR after gate-in."""
+    return services.update_documents(db, visit_id, body.model_dump(exclude_unset=True))
+
+
+PDF = {200: {"content": {"application/pdf": {}}, "description": "PDF document"}}
+
+
+@router.get(
+    "/visits/{visit_id}/cmr.pdf",
+    tags=["documents"],
+    response_class=Response,
+    responses=PDF,
+)
+def cmr_document(visit_id: int, request: Request, db: DB) -> Response:
+    """CMR consignment note filled from the visit (boxes labelled in English and Russian)."""
+    visit = services.get(db, Visit, visit_id)
+    content = documents.cmr_pdf(visit, request.app.state.settings)
+    return Response(content, media_type="application/pdf")
+
+
+@router.get(
+    "/visits/{visit_id}/invoice.pdf",
+    tags=["documents"],
+    response_class=Response,
+    responses=PDF,
+)
+def invoice_document(visit_id: int, request: Request, db: DB, lang: str = "en") -> Response:
+    """Invoice for the visit's charges, in the given language (en, ru, uz, ...)."""
+    visit = services.get(db, Visit, visit_id)
+    if not visit.charges:
+        raise services.DomainError("no_charges", "This visit has no charges to invoice yet")
+    t = translator(lang if lang in languages() else "en")
+    content = documents.invoice_pdf(visit, request.app.state.settings, t)
+    return Response(content, media_type="application/pdf")
 
 
 @router.post(

@@ -29,6 +29,10 @@ class Settings:
     terminal_name: str = field(
         default_factory=lambda: os.environ.get("KARVON_TERMINAL_NAME", "Demo Border Terminal")
     )
+    # Printed under the terminal name on invoices; may span lines ("\n").
+    terminal_address: str = field(
+        default_factory=lambda: os.environ.get("KARVON_TERMINAL_ADDRESS", "").replace("\\n", "\n")
+    )
     # Public demo: shows a banner and blocks changes to users and passwords.
     public_demo: bool = field(
         default_factory=lambda: _bool(os.environ.get("KARVON_PUBLIC_DEMO"), False)
