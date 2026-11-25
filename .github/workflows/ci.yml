@@ -49,3 +49,22 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - run: docker build -t karvon .
+
+  # Redeploy the public demo (render.yaml) once main is green. Needs the repository
+  # secret RENDER_DEPLOY_HOOK: the service's Deploy Hook URL from Render's settings.
+  # Forks and repositories without the secret skip this step.
+  deploy-demo:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [test, postgres, docker]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploy
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "RENDER_DEPLOY_HOOK is not set; skipping the demo deploy"
+            exit 0
+          fi
+          curl --fail --silent --show-error --max-time 30 -X POST "$HOOK" > /dev/null
+          echo "Demo deploy started for ${GITHUB_SHA::7}"

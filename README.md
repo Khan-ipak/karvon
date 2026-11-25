@@ -86,6 +86,9 @@ It uses [`render.yaml`](render.yaml): SQLite on a temporary disk, so the demo
 starts from fresh data after every restart, and `KARVON_PUBLIC_DEMO=1`, so
 visitors can't change the shared demo logins.
 
+CI redeploys the demo after every green build of `main` when the repository has a
+`RENDER_DEPLOY_HOOK` secret (the service's *Deploy Hook* URL from Render's settings).
+
 Without Docker (uses SQLite):
 
 ```bash
