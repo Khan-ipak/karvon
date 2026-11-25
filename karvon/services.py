@@ -97,6 +97,10 @@ class GateInData:
     tir_carnet_number: str | None = None
     cmr_number: str | None = None
     cargo_description: str | None = None
+    sender: str | None = None
+    consignee: str | None = None
+    loading_place: str | None = None
+    delivery_place: str | None = None
 
 
 def gate_in(session: Session, data: GateInData) -> Visit:
@@ -131,9 +135,42 @@ def gate_in(session: Session, data: GateInData) -> Visit:
         tir_carnet_number=data.tir_carnet_number,
         cmr_number=data.cmr_number,
         cargo_description=data.cargo_description,
+        sender=data.sender,
+        consignee=data.consignee,
+        loading_place=data.loading_place,
+        delivery_place=data.delivery_place,
     )
     session.add(visit)
     audit(session, "gate_in", visit, plate)
+    session.flush()
+    return visit
+
+
+# Fields of a visit that go on its documents and can be filled in after gate-in.
+DOCUMENT_FIELDS = (
+    "cmr_number",
+    "tir_carnet_number",
+    "cargo_description",
+    "sender",
+    "consignee",
+    "loading_place",
+    "delivery_place",
+)
+
+
+def update_documents(session: Session, visit_id: int, values: dict[str, str | None]) -> Visit:
+    """Set shipping details (CMR number, sender, consignee, places...). Empty means unknown."""
+    visit = get(session, Visit, visit_id)
+    changed = []
+    for name in DOCUMENT_FIELDS:
+        if name not in values:
+            continue
+        value = (values[name] or "").strip() or None
+        if getattr(visit, name) != value:
+            setattr(visit, name, value)
+            changed.append(name)
+    if changed:
+        audit(session, "documents", visit, ", ".join(changed))
     session.flush()
     return visit
 

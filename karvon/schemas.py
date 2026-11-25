@@ -24,6 +24,22 @@ class GateIn(BaseModel):
     tir_carnet_number: str | None = Field(default=None, max_length=32)
     cmr_number: str | None = Field(default=None, max_length=32)
     cargo_description: str | None = None
+    sender: str | None = Field(default=None, examples=["Mazar Dry Fruits Co., Mazar-i-Sharif"])
+    consignee: str | None = Field(default=None, examples=["Termez Fruit Trade LLC, Termez"])
+    loading_place: str | None = Field(default=None, max_length=128)
+    delivery_place: str | None = Field(default=None, max_length=128)
+
+
+class DocumentsIn(BaseModel):
+    """Shipping details for the CMR. Send only the fields to change; an empty string clears one."""
+
+    cmr_number: str | None = Field(default=None, max_length=32)
+    tir_carnet_number: str | None = Field(default=None, max_length=32)
+    cargo_description: str | None = None
+    sender: str | None = None
+    consignee: str | None = None
+    loading_place: str | None = Field(default=None, max_length=128)
+    delivery_place: str | None = Field(default=None, max_length=128)
 
 
 class ParkIn(BaseModel):
@@ -111,6 +127,10 @@ class VisitOut(ORM):
     tir_carnet_number: str | None
     cmr_number: str | None
     cargo_description: str | None
+    sender: str | None
+    consignee: str | None
+    loading_place: str | None
+    delivery_place: str | None
     arrived_at: datetime
     exited_at: datetime | None
     total_due: Decimal

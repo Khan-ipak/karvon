@@ -18,7 +18,36 @@
       <dt>{{ t("visit.tir") }}</dt><dd>{{ visit.tir_carnet_number or "—" }}</dd>
       <dt>{{ t("visit.cmr") }}</dt><dd>{{ visit.cmr_number or "—" }}</dd>
       <dt>{{ t("visit.cargo") }}</dt><dd>{{ visit.cargo_description or "—" }}</dd>
+      <dt>{{ t("doc.sender") }} → {{ t("doc.consignee") }}</dt>
+      <dd>{{ visit.sender or "—" }} → {{ visit.consignee or "—" }}</dd>
+      <dt>{{ t("doc.loading_place") }} → {{ t("doc.delivery_place") }}</dt>
+      <dd>{{ visit.loading_place or "—" }} → {{ visit.delivery_place or "—" }}</dd>
     </dl>
+    <div class="actions">
+      <a href="/visits/{{ visit.id }}/cmr.pdf" target="_blank" role="button" class="outline">{{ t("doc.cmr") }}</a>
+      {% if visit.charges %}
+      <a href="/visits/{{ visit.id }}/invoice.pdf?lang={{ lang }}" target="_blank" role="button" class="outline">{{ t("doc.invoice_pdf") }}</a>
+      {% endif %}
+    </div>
+    {% if can("gate") %}
+    <details>
+      <summary>{{ t("doc.shipping") }}</summary>
+      <form method="post" action="/visits/{{ visit.id }}/action/documents">
+        <label>{{ t("doc.sender") }}<textarea name="sender" rows="2">{{ visit.sender or "" }}</textarea></label>
+        <label>{{ t("doc.consignee") }}<textarea name="consignee" rows="2">{{ visit.consignee or "" }}</textarea></label>
+        <fieldset class="grid">
+          <label>{{ t("doc.loading_place") }}<input name="loading_place" maxlength="128" value="{{ visit.loading_place or "" }}"></label>
+          <label>{{ t("doc.delivery_place") }}<input name="delivery_place" maxlength="128" value="{{ visit.delivery_place or "" }}"></label>
+        </fieldset>
+        <fieldset class="grid">
+          <label>{{ t("visit.cmr") }}<input name="cmr_number" maxlength="32" value="{{ visit.cmr_number or "" }}"></label>
+          <label>{{ t("visit.tir") }}<input name="tir_carnet_number" maxlength="32" value="{{ visit.tir_carnet_number or "" }}"></label>
+        </fieldset>
+        <label>{{ t("visit.cargo") }}<textarea name="cargo_description" rows="2">{{ visit.cargo_description or "" }}</textarea></label>
+        <button type="submit">{{ t("doc.save") }}</button>
+      </form>
+    </details>
+    {% endif %}
   </article>
   <article>
     <h4>{{ t("visit.actions") }}</h4>

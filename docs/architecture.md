@@ -26,6 +26,7 @@ Diagrams live next to it in [`architecture.puml`](architecture.puml).
 | `warehouse` | Stock lots per owner, created by unloads, consumed by loads        |
 | `weighbridge`| Weigh tickets (gross / tare / net)                                |
 | `billing`   | Tariffs, charges per visit, payment                                |
+| `documents` | CMR consignment note and invoice as PDF                            |
 
 ## Domain model
 
@@ -89,6 +90,7 @@ karvon/
   api.py      JSON REST API (FastAPI router), documented at /docs
   auth.py     Users, passwords, login sessions, permissions
   reports.py  Throughput, dwell time and revenue for a period
+  documents.py CMR and invoice PDFs (fpdf2, bundled DejaVu font in fonts/)
   web.py      HTML UI (Jinja2 templates in templates/), uses the same services
   services.py Business rules and state transitions. No HTTP here.
   models.py   SQLAlchemy models
@@ -104,4 +106,3 @@ Both the API and the UI call `services`. Rules live in one place.
 
 - Weighbridge hardware driver (serial / TCP)
 - ANPR camera integration at the gate
-- CMR / TIR document generation (PDF)

@@ -136,6 +136,11 @@ class Visit(Base):
     tir_carnet_number: Mapped[str | None] = mapped_column(String(32))
     cmr_number: Mapped[str | None] = mapped_column(String(32))
     cargo_description: Mapped[str | None] = mapped_column(Text)
+    # Shipping details for the CMR consignment note
+    sender: Mapped[str | None] = mapped_column(Text)
+    consignee: Mapped[str | None] = mapped_column(Text)
+    loading_place: Mapped[str | None] = mapped_column(String(128))
+    delivery_place: Mapped[str | None] = mapped_column(String(128))
     arrived_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     exited_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 

@@ -14,6 +14,18 @@ from karvon.migrate import PRE_ALEMBIC_REVISION, alembic_config, upgrade
 
 # Tables added after v0.1.0; a v0.1.0 database does not have them.
 NEWER_TABLES = ("audit_events", "user_sessions", "users")
+# Columns added after v0.1.0 to tables it already had.
+NEWER_COLUMNS = (
+    ("visits", "sender"),
+    ("visits", "consignee"),
+    ("visits", "loading_place"),
+    ("visits", "delivery_place"),
+)
+
+
+def _drop_newer_columns(connection):
+    for table, column in NEWER_COLUMNS:
+        connection.execute(text(f'alter table "{table}" drop column "{column}"'))
 
 
 def _v010_tables():
@@ -66,6 +78,7 @@ def test_database_from_v010_is_stamped_and_keeps_data(tmp_path, caplog):
     engine = _engine(tmp_path)
     Base.metadata.create_all(engine, tables=_v010_tables())
     with engine.begin() as c:
+        _drop_newer_columns(c)
         c.execute(text("insert into vehicles (plate_number) values ('KBL-4521')"))
 
     upgrade(engine)
@@ -99,6 +112,7 @@ def test_postgres_v010_constraint_names_are_normalized(caplog):
             c.execute(text(f'alter table "{table}" rename constraint "{new}" to "{old}"'))
         for table in NEWER_TABLES:
             c.execute(text(f'drop table "{table}"'))
+        _drop_newer_columns(c)
         c.execute(text("drop table alembic_version"))
 
     upgrade(engine)
@@ -109,8 +123,7 @@ def test_postgres_v010_constraint_names_are_normalized(caplog):
         names = set(
             c.execute(
                 text(
-                    "select conname from pg_constraint"
-                    " where connamespace = 'public'::regnamespace"
+                    "select conname from pg_constraint where connamespace = 'public'::regnamespace"
                 )
             ).scalars()
         )

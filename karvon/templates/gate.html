@@ -17,6 +17,17 @@
     <label>{{ t("visit.cmr") }}<input name="cmr_number" maxlength="32"></label>
   </fieldset>
   <label>{{ t("visit.cargo") }}<textarea name="cargo_description" rows="2"></textarea></label>
+  <details>
+    <summary>{{ t("doc.shipping") }}</summary>
+    <fieldset class="grid">
+      <label>{{ t("doc.sender") }}<textarea name="sender" rows="2"></textarea></label>
+      <label>{{ t("doc.consignee") }}<textarea name="consignee" rows="2"></textarea></label>
+    </fieldset>
+    <fieldset class="grid">
+      <label>{{ t("doc.loading_place") }}<input name="loading_place" maxlength="128"></label>
+      <label>{{ t("doc.delivery_place") }}<input name="delivery_place" maxlength="128"></label>
+    </fieldset>
+  </details>
   <button type="submit">{{ t("gate.submit") }}</button>
 </form>
 {% endblock %}
