@@ -19,7 +19,7 @@ Built for dry ports, border truck terminals, TIR parks and cross-dock warehouses
 Uzbekistan–Afghanistan crossing, where trucks from Afghanistan and Pakistan are
 parked, transloaded, weighed, cleared and released every day.
 
-> **Status: alpha (v0.3).** The core visit flow works end to end, with users, roles, reports and PDF documents. Feedback and
+> **Status: alpha (v0.4).** The core visit flow works end to end, with users, roles, reports, PDF documents and a weighbridge connection. Feedback and
 > contributors are very welcome. See the [roadmap](#roadmap).
 
 ![Karvon dashboard: trucks on site, their status, yard slot and amount due](docs/img/dashboard.png)

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "karvon"
-version = "0.3.0"
+version = "0.4.0"
 description = "Open-source Terminal Operating System for land freight terminals, dry ports and TIR parks"
 readme = "README.md"
 license = "MIT"
