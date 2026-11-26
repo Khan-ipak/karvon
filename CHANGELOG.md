@@ -4,6 +4,8 @@ All notable changes to Karvon. Dates are UTC.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-26
+
 ### Added
 
 - **Weighbridge connection** (#11). Set `KARVON_SCALE_URL` (`tcp://host:port`,
@@ -92,7 +94,8 @@ First public release: gate in/out, yard, direct transfer and warehouse
 operations, stock, customs flag, weighbridge, tariffs and billing, EN/RU/UZ UI,
 REST API.
 
-[Unreleased]: https://github.com/Khan-ipak/karvon/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/Khan-ipak/karvon/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/Khan-ipak/karvon/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Khan-ipak/karvon/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/Khan-ipak/karvon/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Khan-ipak/karvon/compare/v0.1.0...v0.2.0
