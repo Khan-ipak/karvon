@@ -91,6 +91,7 @@ karvon/
   auth.py     Users, passwords, login sessions, permissions
   reports.py  Throughput, dwell time and revenue for a period
   documents.py CMR and invoice PDFs (fpdf2, bundled DejaVu font in fonts/)
+  scale.py    Weighbridge indicator over TCP / RS-232, its output parser, a simulator
   web.py      HTML UI (Jinja2 templates in templates/), uses the same services
   services.py Business rules and state transitions. No HTTP here.
   models.py   SQLAlchemy models
@@ -104,5 +105,4 @@ Both the API and the UI call `services`. Rules live in one place.
 
 ## Roadmap after v0.1
 
-- Weighbridge hardware driver (serial / TCP)
 - ANPR camera integration at the gate

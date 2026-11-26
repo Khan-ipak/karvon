@@ -170,12 +170,28 @@
 </table>
 {% endif %}
 {% if on_site and can("weigh") %}
-<form method="post" action="/visits/{{ visit.id }}/action/weigh">
+<form id="weigh" method="post" action="/visits/{{ visit.id }}/action/weigh">
+  {% if scale_enabled %}
+  <div class="grid">
+    {% for name, label in (("gross_kg", "weigh.gross"), ("tare_kg", "weigh.tare")) %}
+    <label>{{ t(label) }}
+      <fieldset role="group">
+        <input name="{{ name }}" value="{{ weigh_values[name] }}" inputmode="decimal" required>
+        <button class="secondary outline" formaction="/visits/{{ visit.id }}/scale/{{ name }}"
+                formnovalidate>⚖ {{ t("weigh.from_scale") }}</button>
+      </fieldset>
+    </label>
+    {% endfor %}
+  </div>
+  {% if weigh_values.gross_kg or weigh_values.tare_kg %}<p><small>{{ t("weigh.check") }}</small></p>{% endif %}
+  <button type="submit">{{ t("weigh.submit") }}</button>
+  {% else %}
   <fieldset role="group">
     <input name="gross_kg" placeholder="{{ t('weigh.gross') }}" inputmode="decimal" required>
     <input name="tare_kg" placeholder="{{ t('weigh.tare') }}" inputmode="decimal" required>
     <button type="submit">{{ t("weigh.submit") }}</button>
   </fieldset>
+  {% endif %}
 </form>
 {% endif %}
 

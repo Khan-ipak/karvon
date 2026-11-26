@@ -25,12 +25,13 @@ dependencies = [
   "alembic>=1.13",
   "jinja2>=3.1",
   "python-multipart>=0.0.9",
-  "tzdata>=2024.1",
-  "fpdf2>=2.8",  # CMR and invoice PDFs  # time zone database where the OS has none (slim Docker images, Windows)
+  "tzdata>=2024.1",  # time zone database where the OS has none (slim Docker images, Windows)
+  "fpdf2>=2.8",  # CMR and invoice PDFs
 ]
 
 [project.optional-dependencies]
 postgres = ["psycopg[binary]>=3.2"]
+scale = ["pyserial>=3.5"]  # weighbridge on a serial port
 dev = ["pytest>=8", "httpx>=0.27", "ruff>=0.6", "pypdf>=4"]
 
 [project.urls]
