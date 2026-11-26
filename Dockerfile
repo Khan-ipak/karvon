@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY pyproject.toml README.md ./
 COPY karvon ./karvon
-RUN pip install --no-cache-dir ".[postgres]"
+RUN pip install --no-cache-dir ".[postgres,scale]"
 
 RUN useradd --create-home karvon
 USER karvon

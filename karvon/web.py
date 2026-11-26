@@ -6,7 +6,7 @@ from datetime import date
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Annotated
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
@@ -14,7 +14,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from karvon import auth, documents, reports, services
+from karvon import auth, documents, reports, scale, services
 from karvon.db import get_session
 from karvon.i18n import languages, translator
 from karvon.models import (
@@ -200,6 +200,9 @@ def visit_page(request: Request, visit_id: int, db: DB):
         lots=list(db.scalars(select(StockLot).where(StockLot.quantity_kg > 0))),
         operation_types=list(OperationType),
         parking_days=services.parking_days(visit),
+        scale_enabled=bool(request.app.state.settings.scale_url),
+        # Filled in by "Read from scale" (see read_scale below).
+        weigh_values={k: request.query_params.get(k, "") for k in ("gross_kg", "tare_kg")},
     )
 
 
@@ -430,6 +433,36 @@ def visit_action(
         db.rollback()
         return back_to(url, getattr(e, "message", str(e)))
     return back_to(url)
+
+
+@pages.post("/visits/{visit_id}/scale/{field}")
+def read_scale(
+    request: Request,
+    user: CurrentUser,
+    visit_id: int,
+    field: str,
+    gross_kg: Annotated[str | None, Form()] = None,
+    tare_kg: Annotated[str | None, Form()] = None,
+):
+    """Put the weight on the weighbridge into the gross or tare box of the weigh form.
+
+    Works without JavaScript: the form comes back with the boxes filled in, and the
+    operator still checks them and presses "Record weight".
+    """
+    url = f"/visits/{visit_id}"
+    values = {"gross_kg": _opt(gross_kg) or "", "tare_kg": _opt(tare_kg) or ""}
+    if field not in values:
+        return back_to(url, f"Unknown field {field}")
+    t = translator(_lang(request))
+    try:
+        _check(request, user, "weigh")
+        reading = scale.read_configured(request.app.state.settings, field.removesuffix("_kg"))
+    except services.DomainError as e:
+        key = f"scale.{e.code.removeprefix('scale_')}"
+        message = t(key)
+        return back_to(f"{url}?{urlencode(values)}", message if message != key else e.message)
+    values[field] = str(reading.weight_kg)
+    return RedirectResponse(f"{url}?{urlencode(values)}#weigh", status_code=303)
 
 
 @pages.post("/operations/{operation_id}/action/{action}")

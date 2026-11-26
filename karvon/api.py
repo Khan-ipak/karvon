@@ -10,7 +10,7 @@ from fastapi.responses import Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from karvon import auth, documents, reports, services
+from karvon import auth, documents, reports, scale, services
 from karvon.db import get_session
 from karvon.i18n import languages, translator
 from karvon.models import AuditEvent, Operation, StockLot, Tariff, User, Visit, YardZone
@@ -24,6 +24,7 @@ from karvon.schemas import (
     OperationOut,
     ParkIn,
     ReportOut,
+    ScaleReadingOut,
     StockLotOut,
     TariffOut,
     UserOut,
@@ -264,6 +265,22 @@ def customs(operation_id: int, body: CustomsIn, db: DB) -> Operation:
 )
 def weigh(visit_id: int, body: WeighIn, db: DB):
     return services.weigh(db, visit_id, body.gross_kg, body.tare_kg)
+
+
+@router.get(
+    "/scale",
+    response_model=ScaleReadingOut,
+    tags=["weighbridge"],
+    dependencies=[allow("weigh")],
+)
+def read_scale(request: Request, hint: Annotated[str, Query(pattern="^(gross|tare)$")] = "gross"):
+    """The current stable weight on the weighbridge (KARVON_SCALE_URL).
+
+    Waits up to KARVON_SCALE_TIMEOUT seconds; 409 `scale_unstable` if the weight keeps
+    moving, `scale_offline` if the indicator cannot be reached. `hint` only matters
+    for the simulator.
+    """
+    return scale.read_configured(request.app.state.settings, hint)
 
 
 # --- reports -----------------------------------------------------------------

@@ -4,6 +4,17 @@ All notable changes to Karvon. Dates are UTC.
 
 ## [Unreleased]
 
+### Added
+
+- **Weighbridge connection** (#11). Set `KARVON_SCALE_URL` (`tcp://host:port`,
+  `serial:///dev/ttyUSB0?baud=9600` or `simulator`) and the weigh form gets
+  "Read from scale" buttons that fill in a stable gross or tare weight. Parses common
+  indicator formats (`ST,GS,...`, Mettler Toledo SICS, plain numbers);
+  `KARVON_SCALE_PATTERN` for anything else. `GET /api/v1/scale`, and
+  `python -m karvon.scale URL --raw` to check an indicator. Serial ports need the
+  new `scale` extra (`pip install "karvon[scale]"`); the Docker image has it.
+- The public demo and `docker compose` use the simulated scale.
+
 ## [0.3.0] - 2026-11-25
 
 ### Added

@@ -56,7 +56,8 @@ self-hosted system that models how a truck terminal really works:
 - **Operations.** Direct transfer (truck to truck), warehouse unloading and warehouse loading.
 - **Warehouse.** Stock lots per cargo owner, created by unloads and consumed by loads.
 - **Customs flag.** Customs can be cleared before *or* after the physical work.
-- **Weighbridge.** Gross, tare and net weigh tickets.
+- **Weighbridge.** Gross, tare and net weigh tickets, read straight from the scale
+  indicator over RS-232 or TCP.
 - **Billing.** Configurable tariffs for parking per day, per tonne and per service.
   A truck can't leave until everything is done, cleared and paid.
 - **Documents.** A filled CMR consignment note and an invoice as PDF, ready to print.
@@ -153,6 +154,31 @@ there are charges:
 The same PDFs are in the API: `GET /api/v1/visits/{id}/cmr.pdf` and
 `GET /api/v1/visits/{id}/invoice.pdf?lang=ru`.
 
+## Weighbridge
+
+Point `KARVON_SCALE_URL` at the scale indicator and the weigh form gets
+**Read from scale** buttons for gross and tare. Karvon waits for a stable weight
+and fills it in; the operator checks it and records the ticket.
+
+```bash
+KARVON_SCALE_URL=tcp://10.0.0.5:4001              # indicator or serial-to-Ethernet converter
+KARVON_SCALE_URL=serial:///dev/ttyUSB0?baud=9600  # RS-232 / USB: pip install "karvon[scale]"
+KARVON_SCALE_URL=simulator                        # a fake scale, used in the demo
+```
+
+It understands common indicator formats: `ST,GS,+0031240kg` (A&D style, used by
+many indicators), Mettler Toledo SICS (`S S  31240 kg`) and plain numbers that
+repeat until the truck stops (`=0031240`). Add `?send=SI%0D%0A` for indicators that answer only when asked, or
+set `KARVON_SCALE_PATTERN` to a regex with a `(?P<weight>...)` group for an unusual
+format. Check what yours sends before you set it up:
+
+```bash
+python -m karvon.scale tcp://10.0.0.5:4001 --raw
+```
+
+The API has the same reading: `GET /api/v1/scale`. If your indicator's format is
+not understood, please [post a sample of its output](https://github.com/Khan-ipak/karvon/issues/11).
+
 ## How a visit flows
 
 ```
@@ -176,6 +202,9 @@ lifecycle are in [`docs/architecture.md`](docs/architecture.md).
 | `KARVON_CURRENCY`         | `USD`                    | Display currency                 |
 | `KARVON_TERMINAL_ADDRESS` | —                        | Address and tax number printed on invoices (`\n` for a new line) |
 | `KARVON_TIMEZONE`         | `UTC`                    | Terminal time zone (IANA name, e.g. `Asia/Tashkent`). Times are shown and reports are grouped by day in it |
+| `KARVON_SCALE_URL`        | —                        | Weighbridge indicator, see [Weighbridge](#weighbridge) |
+| `KARVON_SCALE_PATTERN`    | built in                 | Regex for the indicator's output, with a `(?P<weight>...)` group |
+| `KARVON_SCALE_TIMEOUT`    | `5`                      | Seconds to wait for a stable weight |
 
 ## Roadmap
 
@@ -183,11 +212,11 @@ lifecycle are in [`docs/architecture.md`](docs/architecture.md).
 - [x] EN / RU / UZ interface
 - [x] Users, roles and audit log
 - [x] Database migrations (Alembic)
-- [ ] Weighbridge hardware driver (RS-232 / TCP)
-- [ ] ANPR camera at the gate
 - [x] Reports: dwell time, throughput, revenue
 - [x] Yard map
 - [x] CMR and invoice PDFs
+- [x] Weighbridge connection (RS-232 / TCP)
+- [ ] ANPR camera at the gate
 - [ ] More languages: Turkish, Dari, Pashto, Kazakh, Tajik
 
 Have a terminal with a different process? [Open an issue](https://github.com/Khan-ipak/karvon/issues).

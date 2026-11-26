@@ -27,6 +27,9 @@ services:
       KARVON_DEFAULT_LANGUAGE: en
       KARVON_CURRENCY: USD
       KARVON_TIMEZONE: Asia/Tashkent
+      # Weighbridge: a fake one for the demo. For a real indicator use e.g.
+      # tcp://10.0.0.5:4001 (see karvon/scale.py).
+      KARVON_SCALE_URL: simulator
     ports:
       - "8000:8000"
 

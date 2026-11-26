@@ -33,6 +33,15 @@ class Settings:
     terminal_address: str = field(
         default_factory=lambda: os.environ.get("KARVON_TERMINAL_ADDRESS", "").replace("\\n", "\n")
     )
+    # Weighbridge indicator: tcp://host:port, serial:///dev/ttyUSB0?baud=9600 or
+    # simulator. Empty: no "Read from scale" buttons. See karvon/scale.py.
+    scale_url: str = field(default_factory=lambda: os.environ.get("KARVON_SCALE_URL", "").strip())
+    scale_pattern: str | None = field(
+        default_factory=lambda: os.environ.get("KARVON_SCALE_PATTERN") or None
+    )
+    scale_timeout: float = field(
+        default_factory=lambda: float(os.environ.get("KARVON_SCALE_TIMEOUT", "5"))
+    )
     # Public demo: shows a banner and blocks changes to users and passwords.
     public_demo: bool = field(
         default_factory=lambda: _bool(os.environ.get("KARVON_PUBLIC_DEMO"), False)

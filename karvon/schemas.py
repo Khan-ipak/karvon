@@ -64,6 +64,12 @@ class WeighIn(BaseModel):
     tare_kg: Decimal = Field(ge=0)
 
 
+class ScaleReadingOut(BaseModel):
+    weight_kg: Decimal
+    stable: bool | None
+    raw: str
+
+
 class VehicleOut(ORM):
     id: int
     plate_number: str
